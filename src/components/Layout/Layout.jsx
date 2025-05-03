@@ -11,7 +11,7 @@ import { slider } from "@material-tailwind/react";
 
 export default function Layout(){
     const location=useLocation();
-    const hideNavbarAndFooter = ['/login','/', '/register','/resetpassword','/forgetpassword','/proffesors','/teachingassistant','/courses','/halls'];
+    const hideNavbarAndFooter = ['/login','/','*', '/register','/resetpassword','/forgetpassword','/proffesors','/teachingassistant','/courses','/halls'];
     const shouldHide = hideNavbarAndFooter.includes(location.pathname.toLowerCase());
     useEffect(() => {},[]);
     return <>
