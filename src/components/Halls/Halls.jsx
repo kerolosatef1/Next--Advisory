@@ -12,22 +12,66 @@ import {
   DialogHeader,
   DialogFooter,
 } from "@material-tailwind/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon,ExclamationTriangleIcon  } from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Slidebar from "../Slidebar/Slidebar";
 import LoadingAnimation from "../Loading/Loading";
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+// أضف هذا الاستيراد مع بقية الاستيرادا
 const GetHalls = () => {
   const queryClient = useQueryClient();
   const [editHall, setEditHall] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-
-  
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedHallId, setSelectedHallId] = useState(null);
+  // داخل مكون GetHals أضف هذه الدالة
+const DeleteConfirmationModal = () => (
+  <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+    <DialogHeader>
+      Delete Hall
+      <IconButton
+        variant="text"
+        onClick={() => setDeleteModalOpen(false)}
+        className="!absolute right-3 top-3"
+      >
+        <XMarkIcon className="h-5 w-5" />
+      </IconButton>
+    </DialogHeader>
+    <DialogBody>
+      <div className="flex flex-col items-center gap-4">
+        <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
+        <Typography variant="h5" color="red">
+          Are you sure?
+        </Typography>
+        <Typography>
+          This action cannot be undone. All data will be permanently removed.
+        </Typography>
+      </div>
+    </DialogBody>
+    <DialogFooter>
+      <Button
+        color="red"
+        onClick={() => {
+          deleteMutation.mutate(selectedHallId);
+          setDeleteModalOpen(false);
+        }}
+        className="mr-2"
+      >
+        Delete
+      </Button>
+      <Button
+        color="blue-gray"
+        onClick={() => setDeleteModalOpen(false)}
+      >
+        Cancel
+      </Button>
+    </DialogFooter>
+  </Dialog>
+);
   const [hall, setHall] = useState({
     name: "",
     type: false,
@@ -160,6 +204,8 @@ const GetHalls = () => {
         draggable
         pauseOnHover
       />
+
+<DeleteConfirmationModal />
       
       {(isLoading || mutation.isPending || deleteMutation.isPending) && (
         <LoadingAnimation />
@@ -167,14 +213,17 @@ const GetHalls = () => {
       <div className="background-main-pages ">
         <Slidebar/>
         <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
-          
           <div className="flex justify-between items-center py-4">
+
             <Input
               type="text"
               placeholder="🔍 Search By Hall Name"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-64 p-2 border rounded"
+              className=" w-10/12 p-2  mb-4 
+              text-black bg-white
+              placeholder:text-gray-400 placeholder:opacity-100
+              focus:placeholder:text-gray-400"
             />
             <Button onClick={() => setOpen(true)} className="color-main">
             Add New Hall
@@ -226,14 +275,14 @@ const GetHalls = () => {
                 onClick={handleSubmit}
                 disabled={mutation.isPending}
               >
-                {mutation.isPending ? "جاري الحفظ..." : "Save"}
+                {mutation.isPending ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </Dialog>
 
           <div className="overflow-x-auto">
             <table className="w-full text-white">
-              <thead>
+              <thead className="">
                 <tr>
                   <th className="px-6 py-3 text-right">Hall name</th>
                   <th className="px-6 py-3 text-right">Hall Type</th>
@@ -243,29 +292,28 @@ const GetHalls = () => {
               </thead>
               <tbody>
                 {filteredHalls.map((hall) => (
-                  <tr key={hall.id} className="hover:bg-slate-700">
+                  <tr key={hall.id} className="hover:bg-black">
                     <td className="px-6 py-4 text-right">{hall.name}</td>
                     <td className="px-6 py-4 text-right">
                       {hall.type ? "Labs" : "Lectures"}
                     </td>
                     <td className="px-6 py-4 text-right">{hall.capacity}</td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <Button
-                        color="amber"
+                      <button
+                        className="text-blue-600 p-6"
                         onClick={() => handleEdit(hall)}
                       >
-                        Modify
-                      </Button>
-                      <Button
-                        color="red"
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600"
                         onClick={() => {
-                          if (window.confirm("Are You Sure About Delete ?")) {
-                            deleteMutation.mutate(hall.id);
-                          }
+                          setSelectedHallId(hall.id);
+                          setDeleteModalOpen(true);
                         }}
                       >
                        Delete
-                      </Button>
+                      </button>
                     </td>
                   </tr>
                 ))}

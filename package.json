@@ -10,16 +10,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.3",
     "@heroicons/react": "^2.2.0",
     "@material-tailwind/react": "^2.1.10",
     "@radix-ui/react-dialog": "^1.1.11",
     "@tanstack/react-query": "^5.74.3",
     "@tanstack/react-query-devtools": "^5.74.4",
     "axios": "^1.8.4",
+    "file-saver": "^2.0.5",
     "flowbite-react": "^0.11.7",
     "formik": "^2.4.6",
     "framer-motion": "^12.6.3",
     "generate-react-cli": "^8.4.9",
+    "html-docx-js": "^0.3.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "ngx-toastr": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -28,6 +34,7 @@
     "react-router-dom": "^7.1.5",
     "react-toastify": "^11.0.5",
     "sweetalert2": "^11.17.2",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {

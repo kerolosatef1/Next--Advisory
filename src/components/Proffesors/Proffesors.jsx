@@ -16,7 +16,7 @@ import {
   ThemeProvider,
   Spinner
 }from "@material-tailwind/react";
-import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, XMarkIcon ,ExclamationTriangleIcon} from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
@@ -174,8 +174,8 @@ const GetProfessors = () => {
   const [isEdit, setIsEdit] = useState(false);
   const queryClient = useQueryClient();
   const [selectedProfessor, setSelectedProfessor] = useState(null);
-
-  
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedProfessorId, setSelectedProfessorId] = useState(null);
   const [professor, setProfessor] = useState({
     id: "",
     name: "",
@@ -324,16 +324,12 @@ const GetProfessors = () => {
   
     mutation.mutate(payload);
     if (!professor.name.trim()) {
-      toast.error('يرجى إدخال اسم البروفيسور');
+      toast.error('Enter Professor');
       return;
     }
 
   };
-  const handleDelete = (id) => {
-    if (window.confirm("Are You Sure About Delete")) {
-      deleteMutation.mutate(id);
-    }
-  };
+  
   const resetForm = () => {
     setProfessor({ id: "", name: "", availability: [] });
     setIsEdit(false);
@@ -383,7 +379,47 @@ const GetProfessors = () => {
         draggable
         pauseOnHover
       />
-      
+      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+      <DialogHeader>
+        Delete Professor
+        <IconButton
+          variant="text"
+          onClick={() => setDeleteModalOpen(false)}
+          className="!absolute right-3 top-3"
+        >
+          <XMarkIcon className="h-5 w-5" />
+        </IconButton>
+      </DialogHeader>
+      <DialogBody>
+        <div className="flex flex-col items-center gap-4">
+          <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
+          <Typography variant="h5" color="red">
+            Are you sure?
+          </Typography>
+          <Typography>
+            This action cannot be undone. All data will be permanently removed.
+          </Typography>
+        </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button
+          color="red"
+          onClick={() => {
+            deleteMutation.mutate(selectedProfessorId);
+            setDeleteModalOpen(false);
+          }}
+          className="mr-2"
+        >
+          Delete
+        </Button>
+        <Button
+          color="blue-gray"
+          onClick={() => setDeleteModalOpen(false)}
+        >
+          Cancel
+        </Button>
+      </DialogFooter>
+    </Dialog>
       
    <div className="background-main-pages ">
    <Slidebar/>
@@ -422,7 +458,8 @@ const GetProfessors = () => {
       </Typography>
       <Input
         size="lg"
-        placeholder=""
+        placeholder="professor name"
+        required
         className="!border-[1.5px] !border-gray-200 focus:!border-blue-800"
         value={professor.name}
         onChange={handleChange}
@@ -498,7 +535,7 @@ const GetProfessors = () => {
                       scope="col"
                       className="px-6 py-3 text-start text-xs font-medium text-white uppercase dark:text-neutral-500"
                     >
-                      Assigned Courses
+                     Number Assigned Courses
                     </th>
                     <th
                       scope="col"
@@ -581,8 +618,8 @@ const GetProfessors = () => {
       ))}
   </div>
 </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                            📚 Number of Assigned Courses : {" "}
+                                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-white">
+                             {"           "}
                             {professor.numberAssignedCourses}
                           </td>
                           
@@ -613,7 +650,11 @@ const GetProfessors = () => {
                             <button
                               type="button"
                               className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-700 focus:outline-hidden focus:text-red-700 disabled:opacity-50 disabled:pointer-events-none dark:text-red-600  dark:focus:text-red-500"
-                              onClick={() => handleDelete(professor.id)}
+                              onClick={() => {
+                                setSelectedProfessorId(professor.id);
+                                setDeleteModalOpen(true);
+                              }}
+                            
                               >
                               Delete
                             </button>

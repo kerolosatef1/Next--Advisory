@@ -25,8 +25,9 @@ import { Toaster } from 'react-hot-toast';
 import Etnerlife from './components/Etnerlife/Etnerlife';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Resetpassword from './components/Resetpassword/Resetpassword';
-
 import Forgetpassword from './components/Forgetpassword/Forgetpassword';
+import Senddataschedule from './components/Senddataschedule/Senddataschedule';
+import TimetablePage from './components/TimetablePage/TimetablePage';
 
 let query=new QueryClient({
   defaultOptions : {
@@ -52,6 +53,8 @@ function App() {
       {path:"courses",element:<ProtectedRouting><GetCourses/></ProtectedRouting>},
       {path:'postprofessor',element:<ProtectedRouting><CourseProfessors/></ProtectedRouting>},
       {path:'loading',element:<ProtectedRouting><LoadingScreen/></ProtectedRouting>},
+      {path:'generate-schedule',element:<ProtectedRouting><Senddataschedule/></ProtectedRouting>},
+      {path:'timetable',element:<ProtectedRouting><TimetablePage/></ProtectedRouting>},
       {path:'login',element:<Login/>},
       {path:'register',element:<Register/>},
       {path:'reset-password',element:<Resetpassword/>},

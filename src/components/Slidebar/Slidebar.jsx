@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
-import { useState, useEffect } from "react";
+
 import imgLOGO from '../../assets/imagelogo.jpeg'
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   IconButton,
@@ -19,6 +19,7 @@ import {
   Input,
   Drawer,
   Card,
+  Slider,
 } from "@material-tailwind/react";
 import {
   PresentationChartBarIcon,
@@ -62,6 +63,7 @@ const Slidebar = () => {
 };
 
   return <>
+  
      <IconButton variant="text" className=''  size="lg" onClick={openDrawer}>
         {isDrawerOpen ? (
           <XMarkIcon className="h-8 w-8  relative top-0 left-0 stroke-2" />
@@ -172,7 +174,7 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    Orders
+                    <button onClick={() => navigate('/timetable')}>TimeTable</button>
                   </ListItem>
                   <ListItem>
                     <ListItemPrefix>

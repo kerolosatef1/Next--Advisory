@@ -22,6 +22,24 @@
       rgba(25, 179, 134, 0.82) 17%, 
       rgba(30, 110, 179, 0.86) 67%);
   }
+  .bg-sections{
+    background-color: #16B48A;
+  }
+  .bg-lecture{
+    background-color: #345CAA;
+  }
+  .bg-deeplec{
+    background-color: #D9D9D9;
+  }
+  .bg-bodytable{
+    background-color: #D9D9D9;
+  }
+  .bg-days{
+    background-color: #C7C7C7;
+  }
+  .bg-hours{
+    background-color: #B9B6B6;
+  }
 .color-txt {
   /* إضافة fallback للالوان */
   color: var(--primary-green);
@@ -36,6 +54,9 @@
 }
 .color-slidebar{
   background-color: #287fa4;
+ }
+ .bg-shedule{
+  background-color: #2F61AE;
  }
  .background-main-pages{
   background-color: #ABBAD0;

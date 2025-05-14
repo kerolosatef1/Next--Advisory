@@ -207,7 +207,6 @@ export default function Home() {
                         </div>
                     </div>
                     <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mb-8">
-                        
                     </p>
                     <div className="flex gap-4 flex-wrap justify-center">
                         <div className="relative group">
