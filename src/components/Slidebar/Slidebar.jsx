@@ -180,7 +180,8 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    Products
+                    <button onClick={() => navigate('/generate-schedule')}>Generate Schedule</button>
+
                   </ListItem>
                 </List>
               </AccordionBody>
