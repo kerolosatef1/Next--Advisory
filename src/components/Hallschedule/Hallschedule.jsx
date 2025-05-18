@@ -1,23 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import {
   Typography,
   Card,
-  Spinner,
   Select,
   Option,
+  Input,
 } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingAnimation from "../Loading/Loading";
-import Slidebar from "./../Slidebar/Slidebar";
+import Slidebar from "../Slidebar/Slidebar";
 
-const WeeklyHallSchedule = () => {
+const WeeklyClassroomTimetable = () => {
   const [organizedData, setOrganizedData] = useState({});
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedClassroom, setSelectedClassroom] = useState("");
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const tableRef = useRef(null);
 
   const daysOfWeek = [
     { id: "1", name: "Saturday" },
@@ -29,34 +30,47 @@ const WeeklyHallSchedule = () => {
     { id: "7", name: "Friday" },
   ];
 
+  // دالة تنظيم البيانات من الAPI
+  const organizeData = (data) => {
+    const classrooms = {};
+    const allTimeSlots = new Set();
+
+    data.flat().forEach((entry) => {
+      const classroom = entry.name_classRoom;
+      const day = entry.day;
+      const time = normalizeTime(entry.time_slot);
+
+      if (!classrooms[classroom]) classrooms[classroom] = {};
+      if (!classrooms[classroom][day]) classrooms[classroom][day] = {};
+      
+      if (!classrooms[classroom][day][time]) {
+        classrooms[classroom][day][time] = [];
+      }
+
+      classrooms[classroom][day][time].push({
+        course: entry.name_course,
+        time: entry.time_slot,
+      });
+
+      allTimeSlots.add(time);
+    });
+
+    const sortedTimeSlots = Array.from(allTimeSlots).sort((a, b) => 
+      timeToMinutes(a) - timeToMinutes(b)
+    );
+
+    setTimeSlots(sortedTimeSlots);
+    return classrooms;
+  };
+
+  // الدوال المساعدة لمعالجة الوقت
   const normalizeTime = (time) => {
-    if (!time) return "00:00-00:00";
-
-
-    const cleanedTime = time.replace(/\s+/g, "").replace(/[^0-9:-]/g, "");
-
-    const times = cleanedTime.split("-");
-
-    if (times.length !== 2) return "00:00-00:00";
-
-
-    const toMinutes = (t) => {
-      let [h, m] = t.split(":").map((num) => parseInt(num, 10) || 0);
-      if (h >= 1 && h <= 5) h += 12;
-      return h * 60 + (m || 0);
-    };
-
-    const startMinutes = toMinutes(times[0]);
-    let endMinutes = toMinutes(times[1]);
-
-    
-    const format = (minutes) => {
-      const h = Math.floor(minutes / 60) % 24;
-      const m = minutes % 60;
-      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    };
-
-    return `${format(startMinutes)}-${format(endMinutes)}`;
+    const [start, end] = time.split("-").map(t => 
+      t.trim().padStart(5, '0').replace(/(\d{2}):(\d{2})/, (_, h, m) => 
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      )
+    );
+    return `${start}-${end}`;
   };
 
   const timeToMinutes = (time) => {
@@ -65,89 +79,29 @@ const WeeklyHallSchedule = () => {
     return hours * 60 + minutes;
   };
 
-
-  const organizeData = (data) => {
-    const years = {};
-    const allTimeSlots = new Set();
-
-    data.flat().forEach((entry) => {
-      if (!entry.time_slot) {
-        console.warn("Missing time slot:", entry);
-        return;
-      }
-
-      const normalizedTime = normalizeTime(entry.time_slot);
-      console.log("Original:", entry.time_slot, "Normalized:", normalizedTime);
-
-      const year = entry.year;
-      const group = entry.name_group;
-      const day = entry.day;
-
-      if (!years[year]) years[year] = {};
-      if (!years[year][group]) years[year][group] = {};
-      if (!years[year][group][day]) years[year][group][day] = {};
-      if (!years[year][group][day][normalizedTime]) {
-        years[year][group][day][normalizedTime] = [];
-      }
-
-      years[year][group][day][normalizedTime].push({
-        course: entry.name_course,
-        professor: entry.name_professor_or_teaching_assistant,
-        room: entry.room,
-        type: entry.type,
-      });
-
-      allTimeSlots.add(normalizedTime);
-    });
-
-    const sortedTimeSlots = Array.from(allTimeSlots).sort((a, b) => {
-      return timeToMinutes(a) - timeToMinutes(b);
-    });
-
-    setTimeSlots(sortedTimeSlots);
-    return years;
-  };
+  // جلب البيانات من الAPI
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("userToken");
-        if (!token) {
-          toast.error("يجب تسجيل الدخول أولاً");
-          return;
-        }
-
         const response = await axios.get(
-          "https://timetableapi.runasp.net/api/schedule/TimeTable",
+          "https://timetableapi.runasp.net/api/Schedule/ClassRooms",
           {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
-            },
-            timeout: 10000,
+            }
           }
         );
 
-        if (!response.data) {
-          toast.error("Not data Availibale");
-          return;
-        }
-
         const organized = organizeData(response.data);
         setOrganizedData(organized);
-
         
-        const firstYear = Object.keys(organized)[0] || "";
-        const firstGroup = organized[firstYear]
-          ? Object.keys(organized[firstYear])[0]
-          : "";
-        setSelectedYear(firstYear);
-        setSelectedGroup(firstGroup);
+        const firstClassroom = Object.keys(organized)[0] || "";
+        setSelectedClassroom(firstClassroom);
+
       } catch (error) {
-        if (error.code === "ECONNABORTED") {
-          toast.error("انتهت مهلة الاتصال");
-        } else {
-          toast.error("Failed on loading TimeTable");
-        }
+        toast.error("Failed to load classroom data");
       } finally {
         setLoading(false);
       }
@@ -155,6 +109,52 @@ const WeeklyHallSchedule = () => {
 
     fetchData();
   }, []);
+
+  // عرض الجدول
+  const renderTable = () => {
+    if (!organizedData[selectedClassroom]) return null;
+
+    return (
+      <div className="overflow-x-auto" ref={tableRef}>
+        <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
+          <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
+            <tr>
+              <th className="p-3 text-white font-bold border border-blue-600">Day/Time</th>
+              {timeSlots.map((time) => (
+                <th key={time} className="p-3 text-white font-bold border border-blue-600">
+                  {time.split("-").join(" - ")}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          
+          <tbody className="divide-y divide-gray-200">
+            {daysOfWeek.map((day) => (
+              <tr key={day.id} className="hover:bg-gray-50">
+                <td className="p-3 font-semibold text-white bg-red-500 border border-gray-300">
+                  {day.name}
+                </td>
+                {timeSlots.map((time) => (
+                  <td key={time} className="p-3 border border-gray-300">
+                    {organizedData[selectedClassroom][day.id]?.[time]?.map((lecture, idx) => (
+                      <div key={idx} className="mb-2 p-2 rounded bg-blue-100">
+                        <div className="text-sm text-gray-800">
+                          {lecture.course}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {lecture.time}
+                        </div>
+                      </div>
+                    ))}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -164,124 +164,44 @@ const WeeklyHallSchedule = () => {
     );
   }
 
-  // عرض الجدول
-  const renderTable = () => {
-    if (!organizedData[selectedYear]?.[selectedGroup]) return null;
-
-    return (
-      <>
-        <div className="overflow-x-auto  ">
-          <table className="min-w-full bg-bodytable border-collapse">
-            <thead className="bg-orange-300">
-              <tr className="bg-days">
-                <th className=" p-2 border">days/time</th>
-                {timeSlots.map((time) => {
-                  const [start, end] = time.split("-");
-                  return (
-                    <th key={time} className="bg-hours p-2 border">
-                      {start} - {end}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-
-            <tbody className="">
-              {daysOfWeek.map((day) => (
-                <tr key={day.id}>
-                  <td className="bg-days text-center p-2 border font-bold">
-                    {day.name}
-                  </td>
-                  {timeSlots.map((time) => (
-                    <td key={time} className="p-2 border min-w-[200px]">
-                      {organizedData[selectedYear][selectedGroup][day.id]?.[
-                        time
-                      ]?.map((lecture, idx) => (
-                        <div
-                          key={idx}
-                          className={`mb-2 p-2 rounded ${
-                            lecture.type === "lecture"
-                              ? "bg-lecture"
-                              : "bg-sections"
-                          }`}
-                        >
-                          <div className="flex text-white justify-between">
-                            <span className=" font-bold text-white">
-                              {lecture.course}
-                            </span>
-                            <span className="text-sm text-white">
-                              {lecture.type === "lecture"
-                                ? "Lecture"
-                                : "Section"}
-                            </span>
-                          </div>
-                          <div className="text-sm text-white">
-                            <div> {lecture.professor}</div>
-                            <div> {lecture.room || "غير محدد"}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </>
-    );
-  };
+  // تصفية القاعات حسب البحث
+  const filteredClassrooms = Object.keys(organizedData).filter(classroom =>
+    classroom.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <>
-      <div className="background-main-pages ">
-        <Slidebar />
-        <div className="max-w-screen-xl mx-auto rounded-md  sm:px-6 ">
-          <Typography
-            variant="h2"
-            className="text-center font-mono text-5xl mb-6"
+    <div className="background-main-pages">
+      <Slidebar />
+      <div className="max-w-screen-xl mx-auto rounded-md sm:px-6 p-4">
+        <Typography variant="h2" className="text-center mb-6">
+          Classroom Weekly Schedule
+        </Typography>
+
+        <div className="mb-6 flex gap-4 items-center">
+          <Input
+            label="Search Classrooms"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="!border-gray-300 !focus:border-blue-500"
+          />
+          
+          <Select
+            label="Select Classroom"
+            value={selectedClassroom}
+            onChange={(value) => setSelectedClassroom(value)}
           >
-            Weekly Study Schedule
-          </Typography>
-
-          {/* فلترات التحديد */}
-          <div className="flex gap-4 mb-6">
-            <Select
-              label="select the year"
-              value={selectedYear}
-              onChange={(value) => {
-                setSelectedYear(value);
-                setSelectedGroup(Object.keys(organizedData[value])[0]);
-              }}
-            >
-              {Object.keys(organizedData).map((year) => (
-                <Option key={year} value={year}>
-                  Year {year}
-                </Option>
-              ))}
-            </Select>
-
-            <Select
-              label="select the group"
-              value={selectedGroup}
-              onChange={(value) => setSelectedGroup(value)}
-            >
-              {selectedYear &&
-                organizedData[selectedYear] &&
-                Object.keys(organizedData[selectedYear]).map((group) => (
-                  <Option key={group} value={group}>
-                    group {group}
-                  </Option>
-                ))}
-            </Select>
-          </div>
-
-          {/* عرض الجدول */}
-          {renderTable()}
+            {filteredClassrooms.map((classroom) => (
+              <Option key={classroom} value={classroom}>
+                {classroom}
+              </Option>
+            ))}
+          </Select>
         </div>
+
+        {renderTable()}
       </div>
-    </>
+    </div>
   );
 };
 
-export default WeeklyHallSchedule;
+export default WeeklyClassroomTimetable;

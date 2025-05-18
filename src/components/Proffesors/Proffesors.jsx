@@ -1,7 +1,9 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useRef } from "react";
 import React from "react";
 import axios from "axios";
+import imgLOGO from '../../assets/imagelogo.jpeg'
 import {
+ 
   Input,
   Option,
   Select,
@@ -16,7 +18,7 @@ import {
   ThemeProvider,
   Spinner
 }from "@material-tailwind/react";
-import { PlusIcon, XMarkIcon ,ExclamationTriangleIcon} from "@heroicons/react/24/outline";
+import { ChevronDownIcon, PlusIcon, XMarkIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
@@ -29,8 +31,21 @@ import Slidebar from "../Slidebar/Slidebar";
 const ProfessorCoursesManager = ({ professorId, 
   manageOpen, 
   setManageOpen ,  selectedProfessor }) => {
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const queryClient = useQueryClient();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+    const queryClient = useQueryClient();
+    const [selectedCourse, setSelectedCourse] = useState("");
+      // إغلاق القائمة عند النقر خارجها
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   // جلب جميع المواد
   const { data: courses = [], isLoading: coursesLoading } = useQuery({
@@ -44,7 +59,7 @@ const ProfessorCoursesManager = ({ professorId,
     },staleTime: 5000,
     refetchInterval: 1000
   });
-
+  const selectedCourseName = courses.find(c => c.id === selectedCourse)?.name || "";
   const { data: courseProfessors = [], isLoading: assignedLoading } = useQuery({
     queryKey: ['courseProfessors'],
     queryFn: async () => {
@@ -109,49 +124,72 @@ const ProfessorCoursesManager = ({ professorId,
     </IconButton>
   </DialogHeader>
 
-  <DialogBody className="p-6 space-y-4">
-    <div className="border rounded-lg p-4">
-      <Select
-      className=" text-black"
-        label="اختر المادة"
-        value={selectedCourse}
-        onChange={(value) => setSelectedCourse(value)}
-      >
-        <Option value="" disabled>اختر من القائمة</Option>
-        {courses.map(course => (
-          <Option key={course.id} value={course.id}>
-            <div className="flex items-center gap-2  text-black">
-              <span className="text-sm ">{course.name}</span>
-            </div>
-          </Option>
-        ))}
-      </Select>
-    </div>
+  <DialogBody className="p-6 space-y-4" >
+  <div className="border rounded-lg p-4" ref={dropdownRef}>
+  <div className="relative">
+              <div
+                className="w-full p-2 border rounded-lg bg-white cursor-pointer flex items-center justify-between"
+                onClick={() => setShowDropdown(!showDropdown)}
+              >
+                <span className={selectedCourse ? "text-gray-800" : "text-gray-400"}>
+                  {selectedCourseName || "Select Courses"}
+                </span>
+                <ChevronDownIcon className="w-5 h-5 text-gray-600 transition-transform duration-200" />
+              </div>
 
-    <div className="border rounded-lg p-4">
-      <Typography variant="h6" className="mb-4 text-gray-700">
-      Currently Assigned Courses
-      </Typography>
-      <div className="space-y-3">
-        {professorCourses?.map(cp => (
-          <div 
-            key={cp.idCourse}
-            className="flex justify-between items-center bg-gray-50 p-3 rounded-md"
-          >
-            <span className="text-gray-700">{cp.nameCourse}</span>
-            <Button
-              variant="text"
-              color="red"
-              size="sm"
-              onClick={() => unassignMutation.mutate(cp.idCourse)}
-            >
-             Delete
-            </Button>
+              {showDropdown && (
+                <div className="absolute z-50 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {coursesLoading ? (
+                    <div className="p-3 text-center text-gray-500"><td colSpan="7" className="text-center py-4 text-white">
+                    <LoadingAnimation />
+                    </td></div>
+                  ) : courses.length === 0 ? (
+                    <div className="p-3 text-center text-gray-500">Not Have Any Courses</div>
+                  ) : (
+                    courses.map((course) => (
+                      <div
+                        key={course.id}
+                        className={`p-3 hover:bg-blue-50 cursor-pointer ${
+                          selectedCourse === course.id ? "bg-blue-50" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedCourse(course.id);
+                          setShowDropdown(false);
+                        }}
+                      >
+                        <span className="text-gray-800">{course.name}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        ))}
-      </div>
+
+  <div className="border rounded-lg p-4">
+    <Typography variant="h6" className="mb-4 text-gray-700">
+      Currently Assigned Courses
+    </Typography>
+    <div className="space-y-3">
+      {professorCourses?.map(cp => (
+        <div 
+          key={cp.idCourse}
+          className="flex justify-between items-center bg-gray-50 p-3 rounded-md"
+        >
+          <span className="text-gray-700">{cp.nameCourse}</span>
+          <Button
+            variant="text"
+            color="red"
+            size="sm"
+            onClick={() => unassignMutation.mutate(cp.idCourse)}
+          >
+            Delete
+          </Button>
+        </div>
+      ))}
     </div>
-  </DialogBody>
+  </div>
+</DialogBody>
 
   <DialogFooter className="bg-gray-50 border-t px-6 py-4">
     <Button
@@ -307,6 +345,9 @@ const GetProfessors = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!professor.name.trim() || professor.availability.length === 0) {
+      return;
+    }
     const daysObject = Object.keys(dayMap).reduce((acc, day) => {
       acc[dayMap[day]] = professor.availability.includes(day);
       return acc;
@@ -324,12 +365,16 @@ const GetProfessors = () => {
   
     mutation.mutate(payload);
     if (!professor.name.trim()) {
-      toast.error('Enter Professor');
+      toast.error('يرجى إدخال اسم البروفيسور');
       return;
     }
 
   };
-  
+  const handleDelete = (id) => {
+    if (window.confirm("Are You Sure About Delete")) {
+      deleteMutation.mutate(id);
+    }
+  };
   const resetForm = () => {
     setProfessor({ id: "", name: "", availability: [] });
     setIsEdit(false);
@@ -380,57 +425,91 @@ const GetProfessors = () => {
         pauseOnHover
       />
       <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
-      <DialogHeader>
-        Delete Professor
-        <IconButton
-          variant="text"
-          onClick={() => setDeleteModalOpen(false)}
-          className="!absolute right-3 top-3"
-        >
-          <XMarkIcon className="h-5 w-5" />
-        </IconButton>
-      </DialogHeader>
-      <DialogBody>
-        <div className="flex flex-col items-center gap-4">
-          <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
-          <Typography variant="h5" color="red">
-            Are you sure?
-          </Typography>
-          <Typography>
-            This action cannot be undone. All data will be permanently removed.
-          </Typography>
-        </div>
-      </DialogBody>
-      <DialogFooter>
-        <Button
-          color="red"
-          onClick={() => {
-            deleteMutation.mutate(selectedProfessorId);
-            setDeleteModalOpen(false);
-          }}
-          className="mr-2"
-        >
-          Delete
-        </Button>
-        <Button
-          color="blue-gray"
-          onClick={() => setDeleteModalOpen(false)}
-        >
-          Cancel
-        </Button>
-      </DialogFooter>
-    </Dialog>
+        <DialogHeader>
+          Delete Professor
+          <IconButton
+            variant="text"
+            onClick={() => setDeleteModalOpen(false)}
+            className="!absolute right-3 top-3"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </IconButton>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-col items-center gap-4">
+            <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
+            <Typography variant="h5" color="red">
+              Are you sure?
+            </Typography>
+            <Typography>
+              This action cannot be undone. All data will be permanently
+              removed.
+            </Typography>
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            color="red"
+            onClick={() => {
+              deleteMutation.mutate(selectedProfessorId);
+              setDeleteModalOpen(false);
+            }}
+            className="mr-2"
+          >
+            Delete
+          </Button>
+          <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+        </DialogFooter>
+      </Dialog>
+      
       
    <div className="background-main-pages ">
    <Slidebar/>
     
     <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
-  
-    <div className="flex justify-end  ">
-  <Button onClick={() => handleOpen()} variant="gradient" className="disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg bg-gray-900 shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none color-main text-white flex items-center gap-2">
-  {isEdit ?"Modify Proffesors": "Add Proffesor"}
-  </Button>
+    <div className="flex flex-col md:flex-row items-center justify-between mb-6 p-4 gap-4">
+  {/* الصف العلوي للجوال */}
+  <div className="w-full md:w-auto flex justify-between items-center order-1">
+    {/* الشعار على اليسار */}
+    <a  className="flex items-center text-2xl font-semibold text-white">
+      <img className="rounded-md w-8 h-8 mr-2" src={imgLOGO} alt="logo"/>
+      NEXT Advisory
+    </a>
+
+    {/* زر الإضافة على اليمين (للجوال فقط) */}
+    <div className="md:hidden  order-2">
+    <Button 
+      className="text-xs py-3 px-6 rounded-lg active text-white "
+      onClick={() => handleOpen()} 
+      variant="gradient"
+    >
+      {isEdit ? "Modify Professor" : "Add Professor"}
+    </Button>
+    </div>
+  </div>
+
+  {/* حقل البحث (للجوال يأخذ كامل العرض) */}
+  <div className="w-full md:flex-1 md:mx-4 order-last md:order-3">
+    <input
+      type="text"
+      placeholder="🔍Search Professor Name.... "
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="w-full p-2 border rounded bg-white text-gray-800"
+    />
+  </div>
+
+  {/* زر الإضافة للشاشات الكبيرة (يخفي على الجوال) */}
+  <div className="hidden md:block order-4">
+    <Button 
+      onClick={() => handleOpen()} 
+      className="text-xs py-3 px-6 rounded-lg active text-white"
+    >
+      {isEdit ? "Modify Professor" : "Add Professor"}
+    </Button>
+  </div>
 </div>
+    
 <Dialog 
   size="sm" 
   open={open} 
@@ -458,8 +537,6 @@ const GetProfessors = () => {
       </Typography>
       <Input
         size="lg"
-        placeholder="professor name"
-        required
         className="!border-[1.5px] !border-gray-200 focus:!border-blue-800"
         value={professor.name}
         onChange={handleChange}
@@ -490,74 +567,72 @@ const GetProfessors = () => {
 
   <DialogFooter className="px-4 pb-4">
     <Button 
-      className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-3 rounded-lg"
+      className={`${
+        (!professor.name.trim() || professor.availability.length === 0) 
+          ? "bg-gray-400 cursor-not-allowed" 
+          : "active "
+      } text-white px-6 py-3 rounded-lg`}
       onClick={handleSubmit}
+      disabled={!professor.name.trim() || professor.availability.length === 0}
     >
       {isEdit ? "Save Modify" : "Submmit"}
     </Button>
   </DialogFooter>
 </Dialog>
     <Fragment>
-      <div className="text-center">
-      <input
-        type="text"
-        placeholder="🔍Search Professor Name.... "
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className=" mt-5  w-3/5 p-2 border rounded mb-4"
-      /></div>
+     
       <div className="flex flex-col ">
         <div className="-m-1.5 overflow-x-auto">
           <div className="p-1.5 min-w-full inline-block align-middle">
             <div className="overflow-hidden ">
-              <table className="min-w-full divide-y  divide-gray-200 dark:divide-neutral-700">
+              <table className="min-w-full divide-y  divide-gray-200 ">
                 <thead >
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium  text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-start text-xs font-medium  text-white uppercase "
                     >
                       Name
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
                     >
                       Available Days
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
                     >
                       Assigned Courses
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
                     >
                      Number Assigned Courses
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
                     >
                     Action 
                     </th>
                     <th
                       scope="col" 
-                      className="px-6 py-3 text-end text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
                     >
                     Action
                     </th>
                     <th
                       scope="col" 
-                      className="px-6 py-3 text-end text-xs font-medium text-white uppercase dark:text-neutral-500"
+                      className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
                     >
                       Action
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
+                <tbody className="divide-y divide-gray-200 ">
                 {isLoading ? (
                       <tr>
                         <td colSpan="7" className="text-center py-4 text-white">
@@ -641,7 +716,7 @@ const GetProfessors = () => {
                             <button
                               type="button"
                               onClick={() => handleOpen(professor)}
-                              className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-blue-500  hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400 dark:focus:text-blue-400"
+                              className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-blue-500  hover:text-blue-800 focus:outline-hidden focus:text-blue-800 disabled:opacity-50 disabled:pointer-events-none "
                             >
                               Edit
                             </button>
@@ -649,12 +724,11 @@ const GetProfessors = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                             <button
                               type="button"
-                              className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-700 focus:outline-hidden focus:text-red-700 disabled:opacity-50 disabled:pointer-events-none dark:text-red-600  dark:focus:text-red-500"
+                              className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-700 focus:outline-hidden focus:text-red-700 disabled:opacity-50 disabled:pointer-events-none"
                               onClick={() => {
                                 setSelectedProfessorId(professor.id);
                                 setDeleteModalOpen(true);
                               }}
-                            
                               >
                               Delete
                             </button>

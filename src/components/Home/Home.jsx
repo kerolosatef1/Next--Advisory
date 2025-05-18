@@ -1,13 +1,15 @@
 import React , { useEffect, useState, useRef } from "react";
-import { Link, NavLink } from 'react-router-dom';
-import imgLOGO from '../../assets/imagelogo.jpeg'
-
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import imgLOGO from '../../assets/imagelogo.jpeg';
+import imgTimeTable from '../../assets/timetable.jpg'
 export default function Home() {
  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [navbarScrolled, setNavbarScrolled] = useState(false);
   const mobileMenuRef = useRef(null);
   const sectionsRef = useRef([]);
+  const navigate = useNavigate()
+
 
   // Mobile Menu Toggle
   const toggleMobileMenu = () => {
@@ -54,6 +56,14 @@ export default function Home() {
   useEffect(() => {
     sectionsRef.current = document.querySelectorAll('section');
   }, []);
+  const handleGetStart = () => {
+    const token = localStorage.getItem("userToken");
+    if (token) {
+      navigate("/proffesors");
+    } else {
+      navigate("/login");
+    }
+  };
   return <>
  
 <div className="bg-black text-white font-['Space_Grotesk'] overflow-x-hidden">
@@ -110,7 +120,7 @@ export default function Home() {
                         <div className="w-10 h-10 rounded-md from-indigo-600 to-purple-600 border border-indigo-400/30 flex items-center justify-center relative shadow-lg shadow-indigo-800/20">
                             <div className="absolute inset-[3px] bg-gray-900 rounded-[4px] flex items-center justify-center overflow-hidden">
                                 <div className="absolute inset-0  "></div>
-                                <div className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">      <img src={imgLOGO} className="h-8" alt="imgLogo" />
+                                <div className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">      <img src={imgLOGO} className="h-8 rounded-sm" alt="imgLogo" />
                                 </div>
                             </div>
                         </div>
@@ -138,13 +148,12 @@ export default function Home() {
 ))}
                     <div className="relative ml-4 group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-600/50 to-purple-600/50 rounded-lg blur opacity-75 group-hover:opacity-100 transition-all duration-500"></div>
-                        <button className="contact-btn px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium relative z-10 flex items-center justify-center gap-2 group-hover:from-indigo-800/90 group-hover:to-purple-800/90 transition-all duration-300">
-                            <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Connect</span>
+                        <button onClick={handleGetStart} className="contact-btn px-4 py-2 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-sm font-medium relative z-10 flex items-center justify-center gap-2 group-hover:from-indigo-800/90 group-hover:to-purple-800/90 transition-all duration-300">
+                            <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Get Start</span>
                         </button>
                     </div>
                 </div>
 
-              
                 <div className="flex md:hidden">
                     <button onClick={toggleMobileMenu}  className="relative w-10 h-10 focus:outline-none group" aria-label="Toggle menu">
                         <div className="absolute w-5 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
@@ -211,8 +220,8 @@ export default function Home() {
                     <div className="flex gap-4 flex-wrap justify-center">
                         <div className="relative group">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-600/50 to-purple-600/50 rounded-lg blur opacity-75 group-hover:opacity-100 transition-all duration-500"></div>
-                            <button className="px-6 py-3 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-base font-medium relative z-10 flex items-center justify-center gap-2 group-hover:from-indigo-800/90 group-hover:to-purple-800/90 transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
-                                <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent"><Link to="/login">Get Start</Link></span>
+                            <button onClick={handleGetStart} className="px-6 py-3 bg-gradient-to-r from-indigo-900/90 to-purple-900/90 rounded-lg text-white text-base font-medium relative z-10 flex items-center justify-center gap-2 group-hover:from-indigo-800/90 group-hover:to-purple-800/90 transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
+                                <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Get Start</span>
                             </button>
                         </div>
                         <button className="px-6 py-3 bg-transparent border border-cyan-500/30 rounded-lg text-cyan-400 text-base font-medium flex items-center justify-center gap-2 hover:bg-cyan-900/10 hover:border-cyan-500/50 transition-all duration-300">
@@ -374,7 +383,7 @@ export default function Home() {
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
-                                <div className="text-cyan-400/30 font-medium">Project Image 1</div>
+                                <div className="text-cyan-400/30 font-medium"><img src={imgTimeTable} alt="Time_Table_Img" /></div>
                             </div>
                         </div>
                         
@@ -466,7 +475,7 @@ export default function Home() {
                                         </svg>
                                         <div>
                                             <div className="text-sm text-gray-400">Phone</div>
-                                            <a href="tel:+14155552671" className="text-white hover:text-cyan-400 transition-colors">+1 (415) 555-2671</a>
+                                            <a href="tel:+1212092100" className="text-white hover:text-cyan-400 transition-colors">+20 1212092100</a>
                                         </div>
                                     </div>
                                 </div>
@@ -535,18 +544,19 @@ export default function Home() {
     <footer className="bg-gray-900/80 backdrop-blur-lg border-t border-gray-800">
         <div className="container mx-auto px-6 py-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="flex items-center mb-4 md:mb-0">
+            <div className="flex items-center">
                     <div className="relative mr-2">
                         <div className="absolute inset-0 bg-cyan-400/30 rounded-md blur-sm"></div>
-                        <div className="w-8 h-8 rounded-md bg-gradient-to-br from-indigo-600 to-purple-600 border border-indigo-400/30 flex items-center justify-center relative shadow-lg shadow-indigo-800/20">
-                            <div className="absolute inset-[2px] bg-gray-900 rounded-[3px] flex items-center justify-center overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-purple-900/20"></div>
-                                <div className="font-bold text-xs bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">FN</div>
+                        <div className="w-10 h-10 rounded-md from-indigo-600 to-purple-600 border border-indigo-400/30 flex items-center justify-center relative shadow-lg shadow-indigo-800/20">
+                            <div className="absolute inset-[3px] bg-gray-900 rounded-[4px] flex items-center justify-center overflow-hidden">
+                                <div className="absolute inset-0  "></div>
+                                <div className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">      <img src={imgLOGO} className="h-8 rounded-md" alt="imgLogo" />
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="text-lg font-medium bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent flex items-center">
-                        FutureNav
+                    <div className="text-xl font-medium bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent flex items-center">
+                        Next Advisory
                     </div>
                 </div>
                 
@@ -577,7 +587,7 @@ export default function Home() {
                 </div>
             </div>
             <div className="text-center text-gray-500 text-sm mt-8">
-                © 2025 FutureNav. All rights reserved.
+                © 2025 Faragello. All rights reserved.
             </div>
         </div>
     </footer>

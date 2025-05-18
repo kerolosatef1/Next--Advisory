@@ -21,6 +21,7 @@ import LoadingAnimation from "../Loading/Loading";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const GetCourses = () => {
   const [search, setSearch] = useState("");
 
@@ -33,6 +34,8 @@ const GetCourses = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [message, setMessage] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+const [selectedYear, setSelectedYear] = useState(null);
 
   const [course, setCourse] = useState({
     name: "",
@@ -227,7 +230,7 @@ const GetCourses = () => {
 
       await queryClient.invalidateQueries(["courses"]);
       toast.success(
-        isEdit ? "تم تحديث كل المواد في السنة بنجاح" : "تمت الإضافة بنجاح"
+        isEdit ? "Upload all info about Year  " : "Add Courses Successful"
       );
       resetForm();
       handleOpen();
@@ -237,6 +240,30 @@ const GetCourses = () => {
       );
     }
   };
+  const handleEditConfirmation = (year) => {
+    setSelectedYear(year);
+    setShowEditModal(true);
+  };
+  const handleProceedEdit = () => {
+    if (!selectedYear) return;
+    
+    const yearCourses = courses.filter(c => c.year === parseInt(selectedYear));
+    if (yearCourses.length === 0) return;
+
+    const sampleCourse = yearCourses[0];
+    setIsEdit(true);
+    setEditCourses(sampleCourse);
+    setCourse({
+      name: "",
+      grops: sampleCourse.grops.toString(),
+      grop_lap: sampleCourse.grop_lap.toString(),
+      year: selectedYear.toString(),
+      enrollment: sampleCourse.enrollment.toString(),
+    });
+    setOpen(true);
+    setShowEditModal(false);
+  };
+
 
   const handleOpen = () => {
     if (!open) {
@@ -289,23 +316,7 @@ const GetCourses = () => {
 
   
 
-  const handleEdit = (course) => {
-    if (
-      window.confirm(`هل تريد تعديل إعدادات السنة ${course.year} لجميع المواد؟`)
-    ) {
-      setIsEdit(true);
-      setEditCourses(course);
-      const fixed = fixedValues[course.year] || {};
-      setCourse({
-        name: "",
-        grops: fixed.grops?.toString() || "",
-        grop_lap: fixed.grop_lap?.toString() || "",
-        year: course.year.toString(),
-        enrollment: fixed.enrollment?.toString() || "",
-      });
-      setOpen(true);
-    }
-  };
+ 
 
   return (
     <>
@@ -320,6 +331,38 @@ const GetCourses = () => {
         draggable
         pauseOnHover
       />
+      {showEditModal && (
+  <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+      <div className="flex items-start mb-4">
+        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-200">
+          <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />
+        </div>
+        <div className="ml-4">
+          <h3 className="text-lg font-medium text-gray-900">Edit Year Settings</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Are you sure you want to edit settings for Year {selectedYear}?
+          </p>
+        </div>
+      </div>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowEditModal(false)}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleProceedEdit}
+          className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+        >
+          Confirm Edit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
       <DialogHeader>
         Delete Course
@@ -532,13 +575,13 @@ const GetCourses = () => {
                     }));
                   }}
                   disabled={isEdit}
-                  className="text-right"
+                  className="text-left"
                 >
                   {[...Array(6)].map((_, i) => {
                     const yearNumber = i + 1;
                     const hasData = !!fixedValues[yearNumber];
                     return (
-                      <Option key={yearNumber} value={String(yearNumber)}>
+                      <Option className="" key={yearNumber} value={String(yearNumber)}>
                         {hasData ? `Year ${yearNumber}` : `New Year`}
                       </Option>
                     );
@@ -609,12 +652,6 @@ const GetCourses = () => {
                           >
                             Action
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
-                          >
-                            Action
-                          </th>
                         </tr>
                       </thead>
 
@@ -663,23 +700,34 @@ const GetCourses = () => {
                             .sort(([a], [b]) => a - b)
                             .map(([year, data]) => (
                               <Fragment key={year}>
-                                <tr className="bg-blue-800">
-                                  <td colSpan="7" className="p-2 text-center">
-                                    <button
-                                      onClick={() => {
-                                        setCourse({
-                                          year: String(year),
-                                          ...data.fixed,
-                                          name: "",
-                                        });
-                                        handleOpen();
-                                      }}
-                                      className="text-white font-bold"
-                                    >
-                                      {data.fixed
-                                        ? `السنة ${year} +`
-                                        : "إضافة سنة جديدة"}
-                                    </button>
+                                <tr className="bg-gray-700">
+                                  <td colSpan="6" className="p-2 text-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <Button
+                                      
+                                        onClick={() => {
+                                          setCourse({
+                                            year: String(year),
+                                            ...data.fixed,
+                                            name: "",
+                                          });
+                                          handleOpen();
+                                        }}
+                                        className="text-white active font-bold"
+                                      >
+                                        {data.fixed ? `Year ${year} +` : "إضافة سنة جديدة"}
+                                      </Button>
+                                      
+                                      {/* زر التعديل الجديد */}
+                                      <Button
+                                        variant="outlined"
+                                        color="blue"
+                                        onClick={() => handleEditConfirmation(year)}
+                                        className="text-white hover:bg-blue-800 border-white"
+                                      >
+                                        Edit Year
+                                      </Button>
+                                    </div>
                                   </td>
                                 </tr>
 
@@ -691,12 +739,7 @@ const GetCourses = () => {
                                   >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       {course.name}
-                                      <button
-                                        onClick={() => handleEditCourse(course)}
-                                        className="ml-2 text-blue-400 hover:text-blue-600"
-                                      >
-                                        Edit
-                                      </button>
+                                    
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       {course.grops}
@@ -710,13 +753,7 @@ const GetCourses = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       السنة {course.year}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                      <button
-                                        onClick={() => handleEdit(course)}
-                                      >
-                                        Edit
-                                      </button>
-                                    </td>
+                                    
                                     <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                       <button
                                         onClick={() => {

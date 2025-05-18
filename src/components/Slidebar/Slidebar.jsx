@@ -81,7 +81,7 @@ const Slidebar = () => {
             <img
               src={imgLOGO}
               alt="logo"
-              className="h-8 w-8"
+              className="h-8 w-8 rounded-md"
             />
             <Typography variant="h5" color="blue-gray">
               Next Advisory
@@ -174,13 +174,21 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    <button onClick={() => navigate('/timetable')}>TimeTable</button>
+                     <button onClick={() => navigate('/generate-schedule')}>Generate Schedule</button>
+                   
                   </ListItem>
                   <ListItem>
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    <button onClick={() => navigate('/generate-schedule')}>Generate Schedule</button>
+                    <button onClick={() => navigate('/timetable')}>TimeTable</button>
+
+                  </ListItem>
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/hall-schedule')}>Halls Schedule</button>
 
                   </ListItem>
                 </List>

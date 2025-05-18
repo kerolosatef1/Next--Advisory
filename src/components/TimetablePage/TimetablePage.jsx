@@ -37,45 +37,45 @@ const WeeklyTimetable = () => {
       </div>
     `;
     
-    // استبدال كلاسات التنسيق بأنماط مباشرة
+    // استبدال الكلاسات بأنماط مباشرة مع !important
     const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-lecture/g, 'lecture-cell')
-      .replace(/bg-sections/g, 'section-cell');
+      .replace(/bg-lecture/g, 'style="background-color: #3182ce !important; color: white !important;"')
+      .replace(/bg-sections/g, 'style="background-color: #38a169 !important; color: white !important;"')
+      .replace(/bg-days/g, 'style="background-color: #ef4444 !important; color: white !important;"');
   
     printWindow.document.write(`
       <html>
         <head>
           <title>Timetable</title>
           <style>
-            table { 
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, sans-serif;
-            }
-            th, td {
-              border: 1px solid #cbd5e0;
-              padding: 12px;
-              text-align: center;
-            }
-            .lecture-cell {
-              background-color: #3182ce !important;
-              color: white !important;
-              border-radius: 4px;
-              margin: 2px;
-            }
-            .section-cell {
-              background-color: #38a169 !important;
-              color: white !important;
-              border-radius: 4px;
-              margin: 2px;
-            }
-            .bg-days {
-              background-color: #4a5568;
-              color: white;
-            }
-            .bg-hours {
-              background-color: #2d3748;
-              color: white;
+            @media print {
+              table { 
+                border-collapse: collapse;
+                width: 100%;
+                font-family: Arial, sans-serif;
+                -webkit-print-color-adjust: exact !important;
+              }
+              th, td {
+                border: 1px solid #cbd5e0 !important;
+                padding: 12px !important;
+                text-align: center !important;
+              }
+              [style*="background-color: #3182ce"] {
+                background-color: #3182ce !important;
+                color: white !important;
+                border-radius: 4px;
+                margin: 2px;
+              }
+              [style*="background-color: #38a169"] {
+                background-color: #38a169 !important;
+                color: white !important;
+                border-radius: 4px;
+                margin: 2px;
+              }
+              [style*="background-color: #ef4444"] {
+                background-color: #ef4444 !important;
+                color: white !important;
+              }
             }
           </style>
         </head>
@@ -97,9 +97,11 @@ const WeeklyTimetable = () => {
       </div>
     `;
   
+    // إضافة الأنماط بشكل مباشر لكل عنصر
     const tableHtml = tableRef.current.outerHTML
       .replace(/bg-lecture/g, 'style="background-color:#3182ce;color:white;padding:8px;border-radius:4px;"')
-      .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;"');
+      .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;"')
+      .replace(/bg-days/g, 'style="background-color:#ef4444;color:white;"');
   
     const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" 
@@ -116,14 +118,6 @@ const WeeklyTimetable = () => {
               border: 1px solid #cbd5e0;
               padding: 12px;
               text-align: center;
-            }
-            .bg-days {
-              background-color: #4a5568;
-              color: white;
-            }
-            .bg-hours {
-              background-color: #2d3748;
-              color: white;
             }
           </style>
         </head>
@@ -331,7 +325,7 @@ const WeeklyTimetable = () => {
               <tbody className="divide-y divide-gray-200">
                 {daysOfWeek.map((day) => (
                   <tr key={day.id} className="hover:bg-gray-50">
-                    <td className="p-3 font-semibold text-gray-700 bg-gray-100 border border-gray-300">
+                    <td className="p-3 font-semibold text-white bg-days border border-gray-300">
                       {day.name}
                     </td>
                     {timeSlots.map((time) => (
@@ -408,8 +402,6 @@ const WeeklyTimetable = () => {
           >
             Weekly Study Schedule
           </Typography>
-
-          {/* فلترات التحديد */}
           <div className="flex gap-4 mb-6">
             <Select
               label="select the year"
