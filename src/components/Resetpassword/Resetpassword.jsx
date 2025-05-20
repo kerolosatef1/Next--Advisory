@@ -18,10 +18,10 @@ export default function Resetpassword() {
     const sendurl = async (values) => {
         try {
             await axios.post(
-                'https://timetableapi.runasp.net/api/Auth/forgot-password',
+                'https://timetableapi.runasp.net/api/Auth/forgotPassword',
                 {
                     email: values.email,
-                    clientUrl: `https://beta.kooora.com/%D9%83%D8%B1%D8%A9-%D8%A7%D9%84%D9%82%D8%AF%D9%85/%D9%85%D8%A8%D8%A7%D8%B1%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D9%8A%D9%88%D9%85`
+                    clientUrl: `http://localhost:5174/forget-password`
                 }
             );
             toast.success("Check your email for reset link");
@@ -39,7 +39,6 @@ export default function Resetpassword() {
         validationSchema,
         onSubmit: sendurl
     });
-
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
             <ToastContainer position="top-right" autoClose={5000} />

@@ -194,8 +194,8 @@ export default function Home() {
   </a>
 ))}
                     <div className="px-4 pt-2">
-                        <button className="contact-btn w-full px-4 py-2 bg-gradient-to-r from-indigo-700 to-purple-700 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-2 hover:from-indigo-600 hover:to-purple-600 transition-all duration-300">
-                            <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Connect</span>
+                        <button onClick={handleGetStart} className="contact-btn w-full px-4 py-2 bg-gradient-to-r from-indigo-700 to-purple-700 rounded-lg text-white text-sm font-medium flex items-center justify-center gap-2 hover:from-indigo-600 hover:to-purple-600 transition-all duration-300">
+                            <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Get Start</span>
                         </button>
                     </div>
                 </div>
@@ -203,9 +203,7 @@ export default function Home() {
         </div>
     </nav>
 
-   
     <main>
-   
         <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
             <div className="container mx-auto px-6 py-20">
                 <div className="flex flex-col items-center text-center">

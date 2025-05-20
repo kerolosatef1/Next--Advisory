@@ -404,11 +404,7 @@ const GetTeachingAssistant = () => {
       return;
     }
   };
-  const handleDelete = (id) => {
-    if (window.confirm("Are You Sure About Delete")) {
-      deleteMutation.mutate(id);
-    }
-  };
+  
   const resetForm = () => {
     setProfessor({ id: "", name: "", availability: [] });
     setIsEdit(false);
@@ -543,7 +539,7 @@ const GetTeachingAssistant = () => {
             <div className="hidden md:block order-4">
               <Button 
                 onClick={() => handleOpen()} 
-                className="text-xs py-3 px-6 rounded-lg active text-white"
+                className="text-xs  py-3 px-6 rounded-lg active text-white"
               >
                                 {isEdit ? "Modify Teaching assistant" : "Add Teaching assistant"}
 
@@ -619,7 +615,7 @@ const GetTeachingAssistant = () => {
                 className={`${
                   (!professor.name.trim() || professor.availability.length === 0) 
                     ? "bg-gray-400 cursor-not-allowed" 
-                    : "bg-blue-800 hover:bg-blue-900"
+                    : "active "
                 } text-white px-6 py-3 rounded-lg`}
                 onClick={handleSubmit}
                 disabled={!professor.name.trim() || professor.availability.length === 0}

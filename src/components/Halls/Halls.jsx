@@ -358,7 +358,7 @@ const GetHalls = () => {
                   isNaN(hall.capacity) ||
                   parseInt(hall.capacity) <= 0
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-800 hover:bg-blue-900"
+                    : "active "
                 } text-white px-6 py-3 rounded-lg`}
                 onClick={handleSubmit}
                 disabled={
@@ -505,5 +505,4 @@ const GetHalls = () => {
     </>
   );
 };
-
 export default GetHalls;

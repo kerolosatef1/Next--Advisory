@@ -6,9 +6,6 @@ import * as Yup from 'yup'
 import  axios  from 'axios';
 import  Swal  from 'sweetalert2';
 import { UserContext } from "../UserContext/UserContext";
-
-
-
 export default function Login(){
     const { setUserLogin } = useContext(UserContext);
     const [apiError, setApiError] = useState("");
@@ -17,8 +14,8 @@ export default function Login(){
     const validationSchema = Yup.object().shape({
         userName: Yup.string().min(3, 'Min length is 3').max(50, 'Max length is 50').required('Name is required'),
         password: Yup.string().matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, 'Password must start with a capital letter and contain a symbol and numbers').required('Password is required')
-            });
-
+    });
+    
     async function handleLogin(formsdata){
         setLoading(true)
         console.log('register',formsdata)
@@ -109,7 +106,7 @@ export default function Login(){
                         
                     </p>
                     <p>
-                    <NavLink to='/forget-password' className="font-medium text-primary-600  dark:text-primary-500">Forget-Password</NavLink>
+                    <NavLink to='/reset-password' className="font-medium text-primary-600  dark:text-primary-500">Forget-Password</NavLink>
                     </p>
                 </form>
             </div>
