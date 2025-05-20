@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import imgLOGO from '../../assets/imagelogo.jpeg';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
@@ -21,7 +21,7 @@ export default function Resetpassword() {
                 'https://timetableapi.runasp.net/api/Auth/forgotPassword',
                 {
                     email: values.email,
-                    clientUrl: `https://next-advisory.vercel.app/forget-password`
+                    clientUrl: `http://localhost:5173/forget-password`
                 }
             );
             toast.success("Check your email for reset link");

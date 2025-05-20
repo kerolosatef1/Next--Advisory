@@ -10,18 +10,18 @@ import { useNavigate, useLocation } from "react-router-dom";
 export default function Resetpassword() {
     const navigate = useNavigate();
     const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
+const queryString = location.search.slice(1); // إزالة علامة الاستفهام الأولى
+const params = {};
+queryString.split('&').forEach(pair => {
+  const [key, value] = pair.split('=');
+  params[key] = value || '';
+});
+    // استخراج البيانات من الرابط (Keep token encoded)
+    const initialEmail = decodeURIComponent(params.email) || '';
+const token = params.token || '';
 
-    // استخراج البيانات من الرابط
-    const initialEmail = decodeURIComponent(queryParams.get('email')) || '';
-    const token = decodeURIComponent(queryParams.get('token')) || '';
-
-    // تحقق من صحة الرابط
-    if (!initialEmail || !token || token === "undefined") {
-        toast.error("رابط إعادة التعيين غير صالح. يرجى طلب رابط جديد.");
-        navigate('/forget-password');
-        return;
-    }
+    // تحقق من صحة الرابط (moved after token declaration)
+   
 
     // مخطط التحقق من الصحة
     const validationSchema = Yup.object({
@@ -38,41 +38,35 @@ export default function Resetpassword() {
 
     // إرسال البيانات إلى الخادم
 const handleReset = async (values) => {
-  try {
-    // 1. استخراج وفك تشفير الرمز
-    const tokenFromURL = new URLSearchParams(location.search).get("token");
-    const decodedToken = decodeURIComponent(tokenFromURL);
+        try {
+            // No need to re-get token here - use component-level token
+            if (!token || !initialEmail) {
+                toast.error("Invalid reset link. Please request a new one.");
+                navigate("/forget-password");
+                return;
+            }
 
-    // 2. التحقق من صحة الرمز والبريد
-    if (!decodedToken || !initialEmail) {
-      toast.error("الرابط غير صالح. يرجى طلب رابط جديد.");
-      navigate("/forget-password");
-      return;
-    }
+            const response = await axios.post(
+                "https://timetableapi.runasp.net/api/Auth/resetPassword",
+                {
+                    email: initialEmail,
+                    token: token, // Use encoded token from component scope
+                    newPassword: values.newPassword,
+                    confirmPassword: values.confirmPassword,
+                }
+            );
 
-    // 3. إرسال البيانات إلى الخادم
-    const response = await axios.post(
-      "https://timetableapi.runasp.net/api/Auth/resetPassword",
-      {
-        email: initialEmail,
-        token: decodedToken,
-        newPassword: values.newPassword,
-        confirmPassword: values.confirmPassword,
-      }
-    );
+            if (response.status === 200) {
+                toast.success("Password reset successfully!");
+                navigate("/login");
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.[0]?.description || "Reset failed. Please try again.";
+            toast.error(errorMessage);
+        }
+    };
 
-    // 4. إذا نجح الطلب
-    if (response.status === 200) {
-      toast.success("Successful New Password");
-      navigate("/login");
-    }
-  } catch (error) {
-    // 5. معالجة الخطأ
-    const errorMessage = error.response?.data?.[0]?.description || "فشل إعادة التعيين. الرجاء المحاولة لاحقًا.";
-    toast.error(errorMessage);
-    console.error("تفاصيل الخطأ:", error.response?.data);
-  }
-};
+
 
     // تهيئة الفورميك
     const formik = useFormik({
@@ -83,9 +77,14 @@ const handleReset = async (values) => {
         validationSchema,
         onSubmit: handleReset
     });
-
+ if (!initialEmail || !token || token === "undefined") {
+        toast.error("رابط إعادة التعيين غير صالح. يرجى طلب رابط جديد.");
+        navigate('/forget-password');
+        return;
+    }
 
     return (
+        
         <section className="bg-gray-50 dark:bg-gray-900">
             <ToastContainer position="top-right" autoClose={5000} />
             
@@ -101,7 +100,7 @@ const handleReset = async (values) => {
                     </h2>
 
                     <form onSubmit={formik.handleSubmit} className="mt-4 space-y-4 lg:mt-5 md:space-y-5">
-                    
+                        {/* حقل كلمة المرور الجديدة */}
                         <div>
                             <label htmlFor="newPassword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                New Password
@@ -121,7 +120,7 @@ const handleReset = async (values) => {
                             )}
                         </div>
 
-                  
+                        {/* حقل تأكيد كلمة المرور */}
                         <div>
                             <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                Confirm Password
