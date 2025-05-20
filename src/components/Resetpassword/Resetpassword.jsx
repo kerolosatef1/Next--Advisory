@@ -21,7 +21,7 @@ export default function Resetpassword() {
                 'https://timetableapi.runasp.net/api/Auth/forgotPassword',
                 {
                     email: values.email,
-                    clientUrl: `http://localhost:5174/forget-password`
+                    clientUrl: `https://next-advisory.vercel.app/forget-password`
                 }
             );
             toast.success("Check your email for reset link");
