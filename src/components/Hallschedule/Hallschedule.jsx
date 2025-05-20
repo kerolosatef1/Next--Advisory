@@ -42,21 +42,24 @@ const WeeklyClassroomTimetable = () => {
 
       if (!classrooms[classroom]) classrooms[classroom] = {};
       if (!classrooms[classroom][day]) classrooms[classroom][day] = {};
-      
+
       if (!classrooms[classroom][day][time]) {
         classrooms[classroom][day][time] = [];
       }
 
       classrooms[classroom][day][time].push({
         course: entry.name_course,
+        professor: entry.name_professor, // أضفنا اسم الأستاذ
+        year: entry.year, // أضفنا السنة الدراسية
+        group: entry.name_group, // أضفنا اسم الجروب
         time: entry.time_slot,
       });
 
       allTimeSlots.add(time);
     });
 
-    const sortedTimeSlots = Array.from(allTimeSlots).sort((a, b) => 
-      timeToMinutes(a) - timeToMinutes(b)
+    const sortedTimeSlots = Array.from(allTimeSlots).sort(
+      (a, b) => timeToMinutes(a) - timeToMinutes(b)
     );
 
     setTimeSlots(sortedTimeSlots);
@@ -65,10 +68,15 @@ const WeeklyClassroomTimetable = () => {
 
   // الدوال المساعدة لمعالجة الوقت
   const normalizeTime = (time) => {
-    const [start, end] = time.split("-").map(t => 
-      t.trim().padStart(5, '0').replace(/(\d{2}):(\d{2})/, (_, h, m) => 
-        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-      )
+    const [start, end] = time.split("-").map((t) =>
+      t
+        .trim()
+        .padStart(5, "0")
+        .replace(
+          /(\d{2}):(\d{2})/,
+          (_, h, m) =>
+            `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+        )
     );
     return `${start}-${end}`;
   };
@@ -90,16 +98,15 @@ const WeeklyClassroomTimetable = () => {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
-            }
+            },
           }
         );
 
         const organized = organizeData(response.data);
         setOrganizedData(organized);
-        
+
         const firstClassroom = Object.keys(organized)[0] || "";
         setSelectedClassroom(firstClassroom);
-
       } catch (error) {
         toast.error("Failed to load classroom data");
       } finally {
@@ -119,15 +126,20 @@ const WeeklyClassroomTimetable = () => {
         <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
           <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
             <tr>
-              <th className="p-3 text-white font-bold border border-blue-600">Day/Time</th>
+              <th className="p-3 text-white font-bold border border-blue-600">
+                Day/Time
+              </th>
               {timeSlots.map((time) => (
-                <th key={time} className="p-3 text-white font-bold border border-blue-600">
+                <th
+                  key={time}
+                  className="p-3 text-white font-bold border border-blue-600"
+                >
                   {time.split("-").join(" - ")}
                 </th>
               ))}
             </tr>
           </thead>
-          
+
           <tbody className="divide-y divide-gray-200">
             {daysOfWeek.map((day) => (
               <tr key={day.id} className="hover:bg-gray-50">
@@ -136,16 +148,22 @@ const WeeklyClassroomTimetable = () => {
                 </td>
                 {timeSlots.map((time) => (
                   <td key={time} className="p-3 border border-gray-300">
-                    {organizedData[selectedClassroom][day.id]?.[time]?.map((lecture, idx) => (
-                      <div key={idx} className="mb-2 p-2 rounded bg-blue-100">
-                        <div className="text-sm text-gray-800">
-                          {lecture.course}
+                    {organizedData[selectedClassroom][day.id]?.[time]?.map(
+                      (lecture, idx) => (
+                        <div key={idx} className="mb-2 p-2 rounded bg-blue-100">
+                          <div className="text-sm text-gray-800">
+                            {lecture.course}
+                          </div>
+
+                          <div className="text-xs text-gray-600">
+                            <span className="block">{lecture.professor}</span>
+                            <span>
+                              Year {lecture.year} - Group {lecture.group}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-600">
-                          {lecture.time}
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </td>
                 ))}
               </tr>
@@ -165,7 +183,7 @@ const WeeklyClassroomTimetable = () => {
   }
 
   // تصفية القاعات حسب البحث
-  const filteredClassrooms = Object.keys(organizedData).filter(classroom =>
+  const filteredClassrooms = Object.keys(organizedData).filter((classroom) =>
     classroom.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -184,7 +202,7 @@ const WeeklyClassroomTimetable = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="!border-gray-300 !focus:border-blue-500"
           />
-          
+
           <Select
             label="Select Classroom"
             value={selectedClassroom}
