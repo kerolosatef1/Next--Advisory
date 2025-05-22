@@ -143,14 +143,14 @@ const WeeklyClassroomTimetable = () => {
           <tbody className="divide-y divide-gray-200">
             {daysOfWeek.map((day) => (
               <tr key={day.id} className="hover:bg-gray-50">
-                <td className="p-3 font-semibold text-white bg-red-500 border border-gray-300">
+                <td className="p-3 font-semibold text-white bg-blue-300 border-gray-300">
                   {day.name}
                 </td>
                 {timeSlots.map((time) => (
                   <td key={time} className="p-3 border border-gray-300">
                     {organizedData[selectedClassroom][day.id]?.[time]?.map(
                       (lecture, idx) => (
-                        <div key={idx} className="mb-2 p-2 rounded bg-blue-100">
+                        <div key={idx} className="mb-2 p-2 rounded bg-green-300">
                           <div className="text-sm text-gray-800">
                             {lecture.course}
                           </div>

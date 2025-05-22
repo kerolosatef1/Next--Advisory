@@ -14,7 +14,10 @@ import {
   DialogFooter,
   ThemeProvider,
 } from "@material-tailwind/react";
-import { XMarkIcon,ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Slidebar from "../Slidebar/Slidebar";
 import LoadingAnimation from "../Loading/Loading";
@@ -35,8 +38,11 @@ const GetCourses = () => {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [message, setMessage] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
-const [selectedYear, setSelectedYear] = useState(null);
-
+  const [selectedYear, setSelectedYear] = useState(null);
+  // داخل component الGetCourses
+  const [editNameModalOpen, setEditNameModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [newName, setNewName] = useState("");
   const [course, setCourse] = useState({
     name: "",
     grops: "",
@@ -246,8 +252,10 @@ const [selectedYear, setSelectedYear] = useState(null);
   };
   const handleProceedEdit = () => {
     if (!selectedYear) return;
-    
-    const yearCourses = courses.filter(c => c.year === parseInt(selectedYear));
+
+    const yearCourses = courses.filter(
+      (c) => c.year === parseInt(selectedYear)
+    );
     if (yearCourses.length === 0) return;
 
     const sampleCourse = yearCourses[0];
@@ -263,7 +271,6 @@ const [selectedYear, setSelectedYear] = useState(null);
     setOpen(true);
     setShowEditModal(false);
   };
-
 
   const handleOpen = () => {
     if (!open) {
@@ -313,10 +320,49 @@ const [selectedYear, setSelectedYear] = useState(null);
       setMessage(`❌ Failed on delete: ${error.response?.data?.message}`);
     },
   });
+  const updateNameMutation = useMutation({
+    mutationFn: async ({ id, newName }) => {
+      try {
+        const token = localStorage.getItem("userToken");
+        if (!token) throw new Error("No authentication token found");
 
-  
+        const cachedCourses = queryClient.getQueryData(["courses"]) || [];
+        const currentCourse = cachedCourses.find((c) => c.id === id);
 
- 
+        if (!currentCourse) {
+          throw new Error("المادة غير موجودة في الذاكرة المؤقتة");
+        }
+
+        const payload = {
+          name: newName,
+          year: currentCourse.year,
+          grops: currentCourse.grops,
+          grop_lap: currentCourse.grop_lap,
+          enrollment: currentCourse.enrollment,
+        };
+
+        const { data } = await axios.put(
+          `https://timetableapi.runasp.net/api/Courses/${id}`,
+          payload,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        return data;
+      } catch (error) {
+        throw new Error(error.response?.data?.message || error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["courses"]); // إعادة جلب البيانات للتأكد من التحديث
+      toast.success("تم تحديث الاسم بنجاح");
+      setEditNameModalOpen(false);
+      setNewName("");
+      setEditingCourse(null);
+    },
+    onError: (error) => {
+      toast.error(`❌ فشل التحديث: ${error.message}`);
+    },
+  });
 
   return (
     <>
@@ -332,82 +378,118 @@ const [selectedYear, setSelectedYear] = useState(null);
         pauseOnHover
       />
       {showEditModal && (
-  <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-      <div className="flex items-start mb-4">
-        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-200">
-          <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />
+        <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <div className="flex items-start mb-4">
+              <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-200">
+                <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Edit Year Settings
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Are you sure you want to edit settings for Year {selectedYear}
+                  ?
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedEdit}
+                className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+              >
+                Confirm Edit
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-medium text-gray-900">Edit Year Settings</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Are you sure you want to edit settings for Year {selectedYear}?
-          </p>
-        </div>
-      </div>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowEditModal(false)}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleProceedEdit}
-          className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
-        >
-          Confirm Edit
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-        <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
-      <DialogHeader>
-        Delete Course
-        <IconButton
-          variant="text"
-          onClick={() => setDeleteModalOpen(false)}
-          className="!absolute right-3 top-3"
-        >
-          <XMarkIcon className="h-5 w-5" />
-        </IconButton>
-      </DialogHeader>
-      <DialogBody>
-        <div className="flex flex-col items-center gap-4">
-          <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
-          <Typography variant="h5" color="red">
-            Are you sure?
-          </Typography>
-          <Typography>
-            This action cannot be undone. All data will be permanently removed.
-          </Typography>
-        </div>
-      </DialogBody>
-      <DialogFooter>
-        <Button
-          color="red"
-          onClick={() => {
-            deleteMutation.mutate(selectedCourseId);
-            setDeleteModalOpen(false);
-          }}
-          className="mr-2"
-        >
-          Delete
-        </Button>
-        <Button
-          
-          onClick={() => setDeleteModalOpen(false)}
-        >
-          Cancel
-        </Button>
-      </DialogFooter>
-    </Dialog>
-      {(isLoading || mutation.isPending || deleteMutation.isPending) && (
-        <LoadingAnimation />
       )}
 
+      <Dialog open={deleteModalOpen} handler={() => setDeleteModalOpen(false)}>
+        <DialogHeader>
+          Delete Course
+          <IconButton
+            variant="text"
+            onClick={() => setDeleteModalOpen(false)}
+            className="!absolute right-3 top-3"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </IconButton>
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-col items-center gap-4">
+            <ExclamationTriangleIcon className="h-16 w-16 text-red-600" />
+            <Typography variant="h5" color="red">
+              Are you sure?
+            </Typography>
+            <Typography>
+              This action cannot be undone. All data will be permanently
+              removed.
+            </Typography>
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            color="red"
+            onClick={() => {
+              deleteMutation.mutate(selectedCourseId);
+              setDeleteModalOpen(false);
+            }}
+            className="mr-2"
+          >
+            Delete
+          </Button>
+          <Button onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+        </DialogFooter>
+      </Dialog>
+      <Dialog open={editNameModalOpen} handler={setEditNameModalOpen}>
+        <DialogHeader>
+          تعديل اسم المادة
+          <IconButton
+            variant="text"
+            onClick={() => {
+              setEditNameModalOpen(false);
+              setNewName("");
+              setEditingCourse(null);
+            }}
+            className="!absolute right-3 top-3"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </IconButton>
+        </DialogHeader>
+        <DialogBody>
+          <Input
+            label="الاسم الجديد"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+        </DialogBody>
+        <DialogFooter>
+           <Button
+           // Corrected prop value
+            onClick={() => {
+              if (editingCourse && newName.trim()) {
+                updateNameMutation.mutate({
+                  id: editingCourse.id,
+                  newName: newName.trim(),
+                });
+              }
+            }}
+            className="mr-2 active"
+          >
+           Save Update
+          </Button>
+        
+         
+        </DialogFooter>
+      </Dialog>
       <div className="background-main-pages ">
         <Slidebar />
         <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
@@ -581,7 +663,11 @@ const [selectedYear, setSelectedYear] = useState(null);
                     const yearNumber = i + 1;
                     const hasData = !!fixedValues[yearNumber];
                     return (
-                      <Option className="" key={yearNumber} value={String(yearNumber)}>
+                      <Option
+                        className=""
+                        key={yearNumber}
+                        value={String(yearNumber)}
+                      >
                         {hasData ? `Year ${yearNumber}` : `New Year`}
                       </Option>
                     );
@@ -616,46 +702,28 @@ const [selectedYear, setSelectedYear] = useState(null);
                     <table className="min-w-full divide-y  divide-gray-200 ">
                       <thead>
                         <tr>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium  text-white uppercase"
-                          >
+                          <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                             Name
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase"
-                          >
+                          <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                             Groups
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
-                          >
+                          <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                             Lab Sections
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
-                          >
+                          <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                             Enrollment
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
-                          >
+                          <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                             Year
                           </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
-                          >
-                            Action
+                          <th className="px-6 py-3 text-end text-xs font-medium text-white uppercase">
+                            Actions
                           </th>
                         </tr>
                       </thead>
 
-                      <tbody className="divide-y ">
+                      <tbody className="divide-y divide-gray-700 ">
                         {isLoading ? (
                           <tr>
                             <td
@@ -704,7 +772,6 @@ const [selectedYear, setSelectedYear] = useState(null);
                                   <td colSpan="6" className="p-2 text-center">
                                     <div className="flex items-center justify-center gap-2">
                                       <Button
-                                      
                                         onClick={() => {
                                           setCourse({
                                             year: String(year),
@@ -715,14 +782,18 @@ const [selectedYear, setSelectedYear] = useState(null);
                                         }}
                                         className="text-white active font-bold"
                                       >
-                                        {data.fixed ? `Year ${year} +` : "إضافة سنة جديدة"}
+                                        {data.fixed
+                                          ? `Year ${year} +`
+                                          : "إضافة سنة جديدة"}
                                       </Button>
-                                      
+
                                       {/* زر التعديل الجديد */}
                                       <Button
                                         variant="outlined"
                                         color="blue"
-                                        onClick={() => handleEditConfirmation(year)}
+                                        onClick={() =>
+                                          handleEditConfirmation(year)
+                                        }
                                         className="text-white hover:bg-blue-800 border-white"
                                       >
                                         Edit Year
@@ -739,7 +810,6 @@ const [selectedYear, setSelectedYear] = useState(null);
                                   >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       {course.name}
-                                    
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       {course.grops}
@@ -753,18 +823,31 @@ const [selectedYear, setSelectedYear] = useState(null);
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
                                       السنة {course.year}
                                     </td>
-                                    
-                                    <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                      <button
-                                        onClick={() => {
-                                          setSelectedCourseId(course.id);
-                                          setDeleteModalOpen(true);
-                                        }}
-                                        className="text-red-600 hover:text-red-900"
-                                      >
-                                        Delete
-                                      </button>
-                                    </td>
+
+                                   <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+  <div className="flex gap-4 justify-end">
+    <button
+      onClick={() => {
+        setEditingCourse(course);
+        setNewName(course.name);
+        setEditNameModalOpen(true);
+      }}
+      className="text-blue-500 hover:text-blue-800 font-semibold px-2 py-1 rounded"
+    >
+      Edit
+    </button>
+    <span className="text-gray-400">|</span>
+    <button
+      onClick={() => {
+        setSelectedCourseId(course.id);
+        setDeleteModalOpen(true);
+      }}
+      className="text-red-600 hover:text-red-700 font-semibold px-2 py-1 rounded"
+    >
+      Delete
+    </button>
+  </div>
+</td>
                                   </tr>
                                 ))}
                               </Fragment>

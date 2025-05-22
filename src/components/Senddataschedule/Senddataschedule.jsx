@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { 
   Button, 
@@ -19,10 +19,31 @@ import Slidebar from "../Slidebar/Slidebar";
 
 const GenerateSchedule = () => {
   const navigate = useNavigate();
-  const [selectedDays, setSelectedDays] = useState([]);
-  const [timeslots, setTimeslots] = useState([""]);
-  const [run_capacity, setRunCapacity] = useState(false);
+  const [selectedDays, setSelectedDays] = useState(() => {
+    const saved = localStorage.getItem('generateSchedule_selectedDays');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [timeslots, setTimeslots] = useState(() => {
+    const saved = localStorage.getItem('generateSchedule_timeslots');
+    return saved ? JSON.parse(saved) : [""];
+  });
 
+  const [run_capacity, setRunCapacity] = useState(() => {
+    const saved = localStorage.getItem('generateSchedule_run_capacity');
+    return saved ? JSON.parse(saved) : false;
+  });
+useEffect(() => {
+    localStorage.setItem('generateSchedule_selectedDays', JSON.stringify(selectedDays));
+  }, [selectedDays]);
+
+  useEffect(() => {
+    localStorage.setItem('generateSchedule_timeslots', JSON.stringify(timeslots));
+  }, [timeslots]);
+
+  useEffect(() => {
+    localStorage.setItem('generateSchedule_run_capacity', JSON.stringify(run_capacity));
+  }, [run_capacity]);
+  
   // أيام الأسبوع كـ strings
   const daysOfWeek = [
     { id: "1", name: "Saturday" },
@@ -136,11 +157,17 @@ const GenerateSchedule = () => {
     });
   };
 
+    // Modified reset function
   const resetForm = () => {
     setSelectedDays([]);
     setTimeslots([""]);
     setRunCapacity(false);
+    // Clear localStorage
+    localStorage.removeItem('generateSchedule_selectedDays');
+    localStorage.removeItem('generateSchedule_timeslots');
+    localStorage.removeItem('generateSchedule_run_capacity');
   };
+  
 
   return <>
   <ToastContainer
