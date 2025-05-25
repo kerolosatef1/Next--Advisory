@@ -325,7 +325,7 @@ const WeeklyTimetable = () => {
               <tbody className="divide-y divide-gray-200">
                 {daysOfWeek.map((day) => (
                   <tr key={day.id} className="hover:bg-gray-50">
-                    <td className="p-3 font-semibold text-white bg-days border border-gray-300">
+                    <td className="p-3 font-semibold text-white text-center bg-slate-600  border border-gray-300">
                       {day.name}
                     </td>
                     {timeSlots.map((time) => (

@@ -198,6 +198,13 @@ const Slidebar = () => {
                     <button onClick={() => navigate('/professor-schedule')}>Professor Schedule</button>
 
                   </ListItem>
+                    <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/special-student')}>Special Student</button>
+
+                  </ListItem>
                 </List>
               </AccordionBody>
             </Accordion>

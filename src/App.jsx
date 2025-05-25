@@ -28,9 +28,10 @@ import Resetpassword from './components/Resetpassword/Resetpassword';
 import Forgetpassword from './components/Forgetpassword/Forgetpassword';
 import Senddataschedule from './components/Senddataschedule/Senddataschedule';
 import TimetablePage from './components/TimetablePage/TimetablePage';
-import WeeklyHallSchedule from './components/Hallschedule/Hallschedule';
+
 import ClassroomTimetable from './components/Hallschedule/Hallschedule';
 import ProfessorTimetable from './components/ProfessorSchedule/ProfessorSchedule';
+import SpecialStudent from './components/SpecialCaseStudent/SpecialCaseStudent';
 
 let query=new QueryClient({
   defaultOptions : {
@@ -60,6 +61,8 @@ function App() {
       {path:'timetable',element:<ProtectedRouting><TimetablePage/></ProtectedRouting>},
       {path:'hall-schedule',element:<ProtectedRouting><ClassroomTimetable/></ProtectedRouting>},
       {path:'professor-schedule',element:<ProtectedRouting><ProfessorTimetable/></ProtectedRouting>},
+      {path:'special-student',element:<ProtectedRouting><SpecialStudent/></ProtectedRouting>},
+
       {path:'login',element:<Login/>},
       {path:'register',element:<Register/>},
       {path:'reset-password',element:<Resetpassword/>},

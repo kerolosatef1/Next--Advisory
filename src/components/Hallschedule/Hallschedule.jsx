@@ -67,18 +67,31 @@ const WeeklyClassroomTimetable = () => {
   };
 
   // الدوال المساعدة لمعالجة الوقت
-  const normalizeTime = (time) => {
-    const [start, end] = time.split("-").map((t) =>
-      t
-        .trim()
-        .padStart(5, "0")
-        .replace(
-          /(\d{2}):(\d{2})/,
-          (_, h, m) =>
-            `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
-        )
-    );
-    return `${start}-${end}`;
+ const normalizeTime = (time) => {
+    if (!time) return "00:00-00:00";
+
+    const cleanedTime = time.replace(/\s+/g, "").replace(/[^0-9:-]/g, "");
+
+    const times = cleanedTime.split("-");
+
+    if (times.length !== 2) return "00:00-00:00";
+
+    const toMinutes = (t) => {
+      let [h, m] = t.split(":").map((num) => parseInt(num, 10) || 0);
+      if (h >= 1 && h <= 5) h += 12;
+      return h * 60 + (m || 0);
+    };
+
+    const startMinutes = toMinutes(times[0]);
+    let endMinutes = toMinutes(times[1]);
+
+    const format = (minutes) => {
+      const h = Math.floor(minutes / 60) % 24;
+      const m = minutes % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    };
+
+    return `${format(startMinutes)}-${format(endMinutes)}`;
   };
 
   const timeToMinutes = (time) => {
@@ -86,7 +99,6 @@ const WeeklyClassroomTimetable = () => {
     const [hours, minutes] = start.split(":").map(Number);
     return hours * 60 + minutes;
   };
-
   // جلب البيانات من الAPI
   useEffect(() => {
     const fetchData = async () => {
@@ -143,7 +155,7 @@ const WeeklyClassroomTimetable = () => {
           <tbody className="divide-y divide-gray-200">
             {daysOfWeek.map((day) => (
               <tr key={day.id} className="hover:bg-gray-50">
-                <td className="p-3 font-semibold text-white bg-blue-300 border-gray-300">
+                <td className="p-3 font-semibold text-white text-center bg-slate-600 border-gray-300">
                   {day.name}
                 </td>
                 {timeSlots.map((time) => (
