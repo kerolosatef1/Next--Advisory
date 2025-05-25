@@ -262,7 +262,7 @@ const SpecialStudent = () => {
                 className="w-full p-2 border rounded-lg bg-white cursor-pointer"
                 onClick={() => setShowCoursesDropdown(!showCoursesDropdown)}
               >
-                <span className="text-gray-400">
+                <span className="text-red-400">
                   {formData.courses.length > 0
                     ? formData.courses.map((c) => c.name).join(", ")
                     : "Select Courses"}
@@ -274,9 +274,9 @@ const SpecialStudent = () => {
                   {coursesList.map((course) => (
                     <div
                       key={course.id}
-                      className={`p-3 hover:bg-blue-50 cursor-pointer ${
+                      className={`p-3  cursor-pointer ${
                         formData.courses.some((c) => c.id === course.id)
-                          ? "bg-blue-50"
+                          ? "bg-blue-400"
                           : ""
                       }`}
                       onClick={() => {
