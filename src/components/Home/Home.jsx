@@ -1,7 +1,14 @@
 import React , { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import imgLOGO from '../../assets/imagelogo.jpeg';
-import imgTimeTable from '../../assets/timetable.jpg'
+import imgGroups from '../../assets/mageroups.jpeg'
+import hallSchedule from '../../assets/allchedule.jpeg'
+import professorschedule from '../../assets/rofessorchedule.jpeg'
+import specialStudent from '../../assets/specialstudent.jpeg'
+
+
+
+
 export default function Home() {
  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -277,7 +284,7 @@ export default function Home() {
                     <div className="text-center mb-12">
                         <div className="inline-block mb-3">
                             <div className="text-xs text-cyan-400 tracking-widest uppercase mb-1">What We Offer</div>
-                            <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Our Services</div>
+                            <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Our Work</div>
                         </div>
                         <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-indigo-500 mx-auto"></div>
                     </div>
@@ -305,6 +312,28 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
+                                                <div className="relative group">
+                            <div className="absolute inset-0 bg-indigo-500/5 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
+                            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-indigo-500/20 rounded-lg p-6 relative z-10 h-full group-hover:border-indigo-500/40 transition-all duration-300">
+                                <div className="flex flex-col h-full">
+                                    <div className="flex items-center mb-4">
+                                        <div className="w-10 h-10 rounded bg-indigo-900/60 flex items-center justify-center mr-3 group-hover:bg-indigo-800/70 transition-colors">
+                                            <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                            </svg>
+                                        </div>
+                                        <div className="font-medium text-lg text-indigo-300 group-hover:text-indigo-200 transition-colors">Back-End</div>
+                                    </div>
+                                    <p className="text-gray-400 mb-4">We used .NET API To Export Api And Passes Data To Algorithm , C# To Build Data Base </p>
+                                    <a href="#" className="mt-auto text-indigo-400 hover:text-indigo-300 inline-flex items-center">
+                                        Learn more
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
                       
                         <div className="relative group">
@@ -317,9 +346,9 @@ export default function Home() {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                                             </svg>
                                         </div>
-                                        <div className="font-medium text-lg text-purple-300 group-hover:text-purple-200 transition-colors">Development</div>
+                                        <div className="font-medium text-lg text-purple-300 group-hover:text-purple-200 transition-colors">Algorithm AI</div>
                                     </div>
-                                    <p className="text-gray-400 mb-4">Turn designs into functional websites with our clean, optimized code implementation.</p>
+                                    <p className="text-gray-400 mb-4">C++ Scheduling Engine To Generate Conflict-Free TimeTables And Returns in JSON Format And API can Reads And Parses The Result To Front-end </p>
                                     <a href="#" className="mt-auto text-purple-400 hover:text-purple-300 inline-flex items-center">
                                         Learn more
                                         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -341,9 +370,9 @@ export default function Home() {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                             </svg>
                                         </div>
-                                        <div className="font-medium text-lg text-cyan-300 group-hover:text-cyan-200 transition-colors">UX Research</div>
+                                        <div className="font-medium text-lg text-cyan-300 group-hover:text-cyan-200 transition-colors">Front-End</div>
                                     </div>
-                                    <p className="text-gray-400 mb-4">Improve user experience through data-driven insights and comprehensive user testing.</p>
+                                    <p className="text-gray-400 mb-4">We Used FrameWork React , Tailwind , JSX , Redux TO Build Front-End And Integration With API </p>
                                     <a href="#" className="mt-auto text-cyan-400 hover:text-cyan-300 inline-flex items-center">
                                         Learn more
                                         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,8 +393,8 @@ export default function Home() {
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-12">
                         <div className="inline-block mb-3">
-                            <div className="text-xs text-cyan-400 tracking-widest uppercase mb-1">Our Work</div>
-                            <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Featured Projects</div>
+                            <div className="text-xs text-cyan-400 tracking-widest uppercase mb-1">What We Introduce</div>
+                            <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Our Services</div>
                         </div>
                         <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-indigo-500 mx-auto"></div>
                     </div>
@@ -375,26 +404,26 @@ export default function Home() {
                         <div className="relative group overflow-hidden rounded-xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/80 to-purple-600/80 opacity-0 group-hover:opacity-90 transition-all duration-300 z-10 flex items-center justify-center">
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="text-xl font-medium text-white mb-2">AI Dashboard</div>
-                                    <p className="text-gray-200 mb-4">Futuristic analytics interface with real-time data visualization</p>
+                                    <div className="text-xl font-medium text-white mb-2">Displayed Groups Schedule</div>
+                                    <p className="text-gray-200 mb-4">Divide the tables into groups, each group has its own table . EX : Group/1-B | Year/1</p>
                                     <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
-                                <div className="text-cyan-400/30 font-medium"><img src={imgTimeTable} alt="Time_Table_Img" /></div>
+                                <div className="text-cyan-400/30 font-medium"><img src={imgGroups} alt="Time_Table_Img" /></div>
                             </div>
                         </div>
                         
                         <div className="relative group overflow-hidden rounded-xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/80 to-indigo-600/80 opacity-0 group-hover:opacity-90 transition-all duration-300 z-10 flex items-center justify-center">
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="text-xl font-medium text-white mb-2">Crypto Platform</div>
-                                    <p className="text-gray-200 mb-4">Modern cryptocurrency trading platform with advanced charting</p>
+                                    <div className="text-xl font-medium text-white mb-2">Display Hall Schedule</div>
+                                    <p className="text-gray-200 mb-4">Distribution of halls for lectures and sections according to the classification of each hall . Ex / 14001 Section</p>
                                     <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
-                                <div className="text-cyan-400/30 font-medium">Project Image 2</div>
+                                <div className="text-cyan-400/30 font-medium"><img src={hallSchedule} alt="Time_Table_Img" /></div>
                             </div>
                         </div>
                         
@@ -402,13 +431,13 @@ export default function Home() {
                         <div className="relative group overflow-hidden rounded-xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 to-pink-600/80 opacity-0 group-hover:opacity-90 transition-all duration-300 z-10 flex items-center justify-center">
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="text-xl font-medium text-white mb-2">Smart Home UI</div>
-                                    <p className="text-gray-200 mb-4">IoT control interface htmlFor next generation smart homes</p>
+                                    <div className="text-xl font-medium text-white mb-2">Display Professors Schedule</div>
+                                    <p className="text-gray-200 mb-4">Distribution of materials to doctors and teaching assistants</p>
                                     <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
-                                <div className="text-cyan-400/30 font-medium">Project Image 3</div>
+                                <div className="text-cyan-400/30 font-medium"><img src={professorschedule} alt="Time_Table_Img" /></div>
                             </div>
                         </div>
                         
@@ -416,13 +445,13 @@ export default function Home() {
                         <div className="relative group overflow-hidden rounded-xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/80 to-blue-600/80 opacity-0 group-hover:opacity-90 transition-all duration-300 z-10 flex items-center justify-center">
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="text-xl font-medium text-white mb-2">AR Navigation</div>
-                                    <p className="text-gray-200 mb-4">Augmented reality navigation system htmlFor urban environments</p>
+                                    <div className="text-xl font-medium text-white mb-2">Display Special Student Schedule</div>
+                                    <p className="text-gray-200 mb-4">Students outside the standard credit hour range</p>
                                     <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
-                                <div className="text-cyan-400/30 font-medium">Project Image 4</div>
+                                <div className="text-cyan-400/30 font-medium"><img src={specialStudent} alt="Time_Table_Img" /></div>
                             </div>
                         </div>
                     </div>
