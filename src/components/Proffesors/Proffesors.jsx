@@ -390,7 +390,7 @@ const GetProfessors = () => {
       id: parseInt(professor.id, 10),
       name: professor.name.trim(),
       numberAssignedCourses: 1,
-      ...daysObject,
+      daysObject,
     };
 
     if (isEdit) {
@@ -508,27 +508,22 @@ const GetProfessors = () => {
 
         <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 p-4 gap-4">
-            {/* الصف العلوي للجوال */}
+          
             <div className="w-full md:w-auto flex justify-between items-center order-1">
-              {/* الشعار على اليسار */}
-              <a className="flex items-center text-2xl font-semibold text-white">
-                <img
-                  className="rounded-md w-8 h-8 mr-2"
-                  src={imgLOGO}
-                  alt="logo"
-                />
-                NEXT Advisory
-              </a>
 
+<a className="flex items-center  text-sm md:text-2xl font-semibold text-white">
+  <img className="rounded-md w-8 h-8 mr-2" src={imgLOGO} alt="logo" />
+  NEXT Advisory
+</a>
               {/* زر الإضافة على اليمين (للجوال فقط) */}
               <div className="md:hidden  order-2">
                 <Button
-                  className="text-xs py-3 px-6 rounded-lg active text-white "
+                  className="text-xs py-3 px-2 rounded-lg active text-white "
                   onClick={() => handleOpen()}
                   variant="gradient"
                 >
                   {isEdit ? "Modify Professor" : "Add Professor"}
-                      
+                  
                 </Button>
               </div>
             </div>
@@ -642,7 +637,7 @@ const GetProfessors = () => {
                         <tr>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium  text-white uppercase "
+                            className="px-6 py-3 text-start text-10  text-white uppercase "
                           >
                             Name
                           </th>
@@ -660,7 +655,7 @@ const GetProfessors = () => {
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
+                            className="px-6 py-3 text-start text-xs  font-medium text-white uppercase "
                           >
                             Number Assigned Courses
                           </th>

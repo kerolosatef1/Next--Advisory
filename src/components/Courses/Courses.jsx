@@ -24,6 +24,7 @@ import LoadingAnimation from "../Loading/Loading";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import imgLOGO from "../../assets/imagelogo.jpeg";
 
 const GetCourses = () => {
   const [search, setSearch] = useState("");
@@ -354,7 +355,7 @@ const GetCourses = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["courses"]); // إعادة جلب البيانات للتأكد من التحديث
-      toast.success("تم تحديث الاسم بنجاح");
+      toast.success("Update Name Successfuly");
       setEditNameModalOpen(false);
       setNewName("");
       setEditingCourse(null);
@@ -451,7 +452,7 @@ const GetCourses = () => {
       </Dialog>
       <Dialog open={editNameModalOpen} handler={setEditNameModalOpen}>
         <DialogHeader>
-          تعديل اسم المادة
+          Update Name Courses
           <IconButton
             variant="text"
             onClick={() => {
@@ -466,7 +467,7 @@ const GetCourses = () => {
         </DialogHeader>
         <DialogBody>
           <Input
-            label="الاسم الجديد"
+            label="new name course"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
           />
@@ -493,18 +494,29 @@ const GetCourses = () => {
       <div className="background-main-pages ">
         <Slidebar />
         <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
-          <div className="flex justify-end  ">
-            <Button
-              onClick={() => {
-                resetForm();
-                handleOpen();
-              }}
-              variant="gradient"
-              className="color-main"
-            >
-              Add Courses
-            </Button>
-          </div>
+        <div className="w-full md:w-auto flex justify-between items-center order-1">
+  {/* الشعار - سيظهر على جميع الشاشات */}
+  <a className="flex items-center  py-4 text-lg md:text-2xl font-semibold text-white">
+    <img 
+      className="rounded-md w-8 h-8 mr-2" 
+      src={imgLOGO} 
+      alt="logo" 
+    />
+    NEXT Advisory
+  </a>
+
+  {/* الزر - سيظهر على جميع الشاشات */}
+  <Button
+    onClick={() => {
+      resetForm();
+      handleOpen();
+    }}
+    variant="gradient"
+    className="color-main " // سيخفي الزر على الجوال ويظهر على الشاشات الكبيرة
+  >
+    Add Courses
+  </Button>
+</div>
           <Dialog size="sm" open={open} handler={handleOpen} className="p-4">
             <DialogHeader className="relative m-0 block bg-blue-800 text-white p-4 rounded-t-xl">
               <Typography variant="h4" color="blue-gray">
@@ -821,7 +833,7 @@ const GetCourses = () => {
                                       {course.enrollment}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white ">
-                                      السنة {course.year}
+                                      {course.year}
                                     </td>
 
                                    <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">

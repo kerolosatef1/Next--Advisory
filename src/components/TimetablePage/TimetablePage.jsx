@@ -11,7 +11,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingAnimation from "../Loading/Loading";
 import Slidebar from "./../Slidebar/Slidebar";
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 const WeeklyTimetable = () => {
   const [organizedData, setOrganizedData] = useState({});
   const [selectedYear, setSelectedYear] = useState("");
@@ -29,112 +30,105 @@ const WeeklyTimetable = () => {
     { id: "7", name: "Friday" },
   ];
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    const header = `
-      <div style="text-align:center;padding:20px;background:#f0f4f8;">
-        <h2 style="color:#2d3748;margin:0;">Academic Year: ${selectedYear}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;">Group: ${selectedGroup}</h3>
-      </div>
-    `;
+  if (!selectedYear || !selectedGroup || !tableRef.current) return;
+
+  toast.info('جاري إنشاء ملف PDF...', { autoClose: 2000 });
+
+  // استخدام html2canvas لالتقاط لقطة للجدول مع التنسيق
+  html2canvas(tableRef.current, {
+    scale: 2, // زيادة الدقة
+    logging: false,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+  }).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     
-    // استبدال الكلاسات بأنماط مباشرة مع !important
-    const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-lecture/g, 'style="background-color: #3182ce !important; color: white !important;"')
-      .replace(/bg-sections/g, 'style="background-color: #38a169 !important; color: white !important;"')
-      .replace(/bg-days/g, 'style="background-color: #ef4444 !important; color: white !important;"');
-  
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Timetable</title>
-          <style>
-            @media print {
-              table { 
-                border-collapse: collapse;
-                width: 100%;
-                font-family: Arial, sans-serif;
-                -webkit-print-color-adjust: exact !important;
-              }
-              th, td {
-                border: 1px solid #cbd5e0 !important;
-                padding: 12px !important;
-                text-align: center !important;
-              }
-              [style*="background-color: #3182ce"] {
-                background-color: #3182ce !important;
-                color: white !important;
-                border-radius: 4px;
-                margin: 2px;
-              }
-              [style*="background-color: #38a169"] {
-                background-color: #38a169 !important;
-                color: white !important;
-                border-radius: 4px;
-                margin: 2px;
-              }
-              [style*="background-color: #ef4444"] {
-                background-color: #ef4444 !important;
-                color: white !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${header}
-          ${tableHtml}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  };
+    // حساب أبعاد الصورة
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = imgHeight / imgWidth;
+    const pdfWidth = pageWidth - 20; // هامش 10مم من كل جانب
+    const pdfHeight = pdfWidth * ratio;
+    
+    // إضافة الصورة إلى PDF
+    pdf.addImage(imgData, 'PNG', 10, 20, pdfWidth, pdfHeight);
+
+    // إضافة رأس المستند
+    pdf.setFontSize(30);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(`Academic Year: ${selectedYear}`, pageWidth / 2, 10, { align: 'center' });
+    pdf.setFontSize(14);
+    pdf.text(`Group: ${selectedGroup}`, pageWidth / 2, 16, { align: 'center' });
+
+    // حفظ الملف
+    pdf.save(`Timetable_${selectedYear}_${selectedGroup}.pdf`);
+    toast.success('تم إنشاء ملف PDF بنجاح');
+  }).catch((error) => {
+    toast.error('حدث خطأ أثناء إنشاء الملف');
+    console.error('Error generating PDF:', error);
+  });
+};
 
   const exportToWord = () => {
+  if (!selectedYear || !selectedGroup || !tableRef.current) return;
+
+  toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
+
+  // استخدام نفس تقنية html2canvas لضمان التطابق التام
+  html2canvas(tableRef.current, {
+    scale: 2,
+    logging: false,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+  }).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    
     const header = `
-      <div style="text-align:center;padding:20px;border-bottom:2px solid #e2e8f0;">
-        <h2 style="color:#2d3748;margin:0;">Academic Year: ${selectedYear}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;">Group: ${selectedGroup}</h3>
+      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
+        <h2 style="color:#2d3748;margin:0;font-size:60px;">Academic Year: ${selectedYear}</h2>
+        <h3 style="color:#4a5568;margin:5px 0 0;font-size:50px;">Group: ${selectedGroup}</h3>
       </div>
     `;
-  
-    // إضافة الأنماط بشكل مباشر لكل عنصر
-    const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-lecture/g, 'style="background-color:#3182ce;color:white;padding:8px;border-radius:4px;"')
-      .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;"')
-      .replace(/bg-days/g, 'style="background-color:#ef4444;color:white;"');
-  
+
     const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" 
             xmlns:w="urn:schemas-microsoft-com:office:word">
         <head>
           <meta charset="UTF-8">
+          <title>Weekly Timetable</title>
           <style>
-            table { 
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, sans-serif;
-            }
-            th, td {
-              border: 1px solid #cbd5e0;
-              padding: 12px;
-              text-align: center;
-            }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+            img { max-width: 100%; height: auto; }
           </style>
         </head>
         <body>
           ${header}
-          ${tableHtml}
+          <img src="${imgData}" alt="Timetable" />
         </body>
       </html>
     `;
-  
-    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+
+    const blob = new Blob(['\ufeff', htmlContent], {
+      type: 'application/msword'
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Timetable_${selectedYear}_${selectedGroup}.doc`;
+    document.body.appendChild(link);
     link.click();
-  };
+    document.body.removeChild(link);
+    toast.success('تم إنشاء ملف Word بنجاح');
+  }).catch((error) => {
+    toast.error('حدث خطأ أثناء إنشاء الملف');
+    console.error('Error generating Word:', error);
+  });
+};
 
   const exportToExcel = () => {
     // إنشاء بيانات Excel مع الهيدر
@@ -305,7 +299,7 @@ const WeeklyTimetable = () => {
             <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
               <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
                 <tr>
-                  <th className="p-3 text-white font-bold border border-blue-600">
+                  <th className=" text-white font-bold border border-blue-600">
                     Day/Time
                   </th>
                   {timeSlots.map((time) => {
@@ -313,7 +307,7 @@ const WeeklyTimetable = () => {
                     return (
                       <th
                         key={time}
-                        className="p-3 text-white font-bold border border-blue-600"
+                        className="py-2 px-1 text-white text-xs   sm:text-xs md:text-sm font-bold border border-blue-600 min-w-[60px] max-w-[100px] truncate"
                       >
                         {start} - {end}
                       </th>
@@ -341,7 +335,7 @@ const WeeklyTimetable = () => {
                                 : "bg-sections"
                             }`}
                           >
-                            <div className="flex text-white justify-between">
+                            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-1 md:gap-0">
                               <span className=" font-bold text-white">
                                 {lecture.course}
                               </span>
@@ -374,6 +368,13 @@ const WeeklyTimetable = () => {
       <div className="background-main-pages ">
         <Slidebar />
         <div className="max-w-screen-xl mx-auto rounded-md  sm:px-6 ">
+          
+          <Typography
+            variant="h2"
+            className="text-center font-mono text-5xl mb-6"
+          >
+            Weekly Study Schedule
+          </Typography>
           <div className="flex gap-4 mb-6 justify-center">
             <button
               onClick={handlePrint}
@@ -396,13 +397,7 @@ const WeeklyTimetable = () => {
               Export Excel
             </button>
           </div>
-          <Typography
-            variant="h2"
-            className="text-center font-mono text-5xl mb-6"
-          >
-            Weekly Study Schedule
-          </Typography>
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-3 mb-3 md:gap-3">
             <Select
               label="select the year"
               value={selectedYear}

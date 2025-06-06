@@ -197,15 +197,15 @@ const GenerateSchedule = () => {
       />
       <div className="background-main-pages ">
         <Slidebar />
-        <div className="max-w-screen-xl mx-auto rounded-md  px-4 sm:px-6 ">
+        <div className="max-w-screen-xl mx-auto rounded-md   ">
           <Card className="shadow-xl ">
             <CardHeader floated={false} className="bg-blue-800 text-white p-4">
-              <Typography variant="h3" className="text-center">
+              <Typography  className=" text-center text-xl md:text-3xl font-bold">
                 Generate a Schedule
               </Typography>
             </CardHeader>
 
-            <CardBody className="p-6">
+            <CardBody className="p-6 ">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <div className="flex items-center gap-2 mb-3">

@@ -11,6 +11,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingAnimation from "../Loading/Loading";
 import Slidebar from "./../Slidebar/Slidebar";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const ProfessorTimetable = () => {
   const [organizedData, setOrganizedData] = useState({});
@@ -30,99 +32,103 @@ const ProfessorTimetable = () => {
     { id: "7", name: "Friday" },
   ];
 
-  // نفس دوال التصدير والطباعة من الكود السابق مع تعديل الهيدر
-    const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    const header = `
-      <div style="text-align:center;padding:20px;background:#f0f4f8;">
-        <h2 style="color:#2d3748;margin:0;">Professor: ${selectedProfessor}</h2>
-      </div>
-    `;
-    
-    const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-red-500/g, 'style="background-color: #ef4444 !important; color: white !important;"')
-      .replace(/bg-blue-600/g, 'style="background-color: #3182ce !important; color: white !important;"');
+  const handlePrint = () => {
+    if (!selectedProfessor || !tableRef.current) return;
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Professor Timetable</title>
-          <style>
-            @media print {
-              table { 
-                border-collapse: collapse;
-                width: 100%;
-                font-family: Arial, sans-serif;
-                -webkit-print-color-adjust: exact !important;
-              }
-              th, td {
-                border: 1px solid #cbd5e0 !important;
-                padding: 12px !important;
-                text-align: center !important;
-              }
-              [style*="background-color: #3182ce"] {
-                background-color: #3182ce !important;
-                color: white !important;
-              }
-              [style*="background-color: #ef4444"] {
-                background-color: #ef4444 !important;
-                color: white !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${header}
-          ${tableHtml}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+    toast.info("Generating PDF...", { autoClose: 2000 });
+
+    html2canvas(tableRef.current, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const pdf = new jsPDF("landscape", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgHeight / imgWidth;
+        const pdfWidth = pageWidth - 20;
+        const pdfHeight = pdfWidth * ratio;
+
+        pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
+
+        // Add document header
+        pdf.setFontSize(18);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(`Professor: ${selectedProfessor}`, pageWidth / 2, 10, {
+          align: "center",
+        });
+
+        pdf.save(`Professor_Timetable_${selectedProfessor}.pdf`);
+        toast.success("PDF generated successfully");
+      })
+      .catch((error) => {
+        toast.error("Error generating PDF");
+        console.error("Error generating PDF:", error);
+      });
   };
 
   const exportToWord = () => {
-    const header = `
-      <div style="text-align:center;padding:20px;border-bottom:2px solid #e2e8f0;">
-        <h2 style="color:#2d3748;margin:0;">Professor: ${selectedProfessor}</h2>
+    if (!selectedProfessor || !tableRef.current) return;
+
+    toast.info("Generating Word document...", { autoClose: 2000 });
+
+    html2canvas(tableRef.current, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+
+        const header = `
+      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
+        <h2 style="color:#2d3748;margin:0;font-size:40px;font-weight: bold;">Professor: ${selectedProfessor}</h2>
       </div>
     `;
-  
-    const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-red-500/g, 'style="background-color:#ef4444;color:white;"')
-      .replace(/bg-blue-600/g, 'style="background-color:#3182ce;color:white;padding:8px;"');
 
-    const htmlContent = `
+        const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" 
             xmlns:w="urn:schemas-microsoft-com:office:word">
         <head>
           <meta charset="UTF-8">
+          <title>Professor Timetable</title>
           <style>
-            table { 
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, sans-serif;
-            }
-            th, td {
-              border: 1px solid #cbd5e0;
-              padding: 12px;
-              text-align: center;
-            }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+            img { max-width: 100%; height: auto; }
           </style>
         </head>
         <body>
           ${header}
-          ${tableHtml}
+          <img src="${imgData}" alt="Professor Timetable" />
         </body>
       </html>
     `;
-  
-    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Timetable_${selectedProfessor}.doc`;
-    link.click();
+
+        const blob = new Blob(["\ufeff", htmlContent], {
+          type: "application/msword",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Professor_Timetable_${selectedProfessor}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Word document generated successfully");
+      })
+      .catch((error) => {
+        toast.error("Error generating Word document");
+        console.error("Error generating Word:", error);
+      });
   };
 
   const exportToExcel = () => {
@@ -131,7 +137,8 @@ const ProfessorTimetable = () => {
       "Day,Time,Course,Group,Room,Year\n",
       ...daysOfWeek.flatMap((day) =>
         timeSlots.flatMap((time) => {
-          const lectures = organizedData[selectedProfessor]?.[day.id]?.[time] || [];
+          const lectures =
+            organizedData[selectedProfessor]?.[day.id]?.[time] || [];
           return lectures.map(
             (lecture) =>
               `${day.name},${time},${lecture.course},${lecture.group},${lecture.room},${lecture.year}`
@@ -149,8 +156,6 @@ const ProfessorTimetable = () => {
     link.download = `Timetable_${selectedProfessor}.csv`;
     link.click();
   };
-
-  // نفس الدوال الأخرى للتصدير مع تعديل اسم الملف والمحتوى
 
   const normalizeTime = (time) => {
     if (!time) return "00:00-00:00";
@@ -250,15 +255,15 @@ const ProfessorTimetable = () => {
         <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
           <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
             <tr>
-              <th className="p-3 text-white font-bold border border-blue-600">
+              <th className="p-3 text-white font-bold border border-blue-600 sticky left-0 z-10 min-w-[80px]">
                 Day/Time
               </th>
               {timeSlots.map((time) => (
                 <th
                   key={time}
-                  className="p-3 text-white font-bold border border-blue-600"
+                  className="py-2 px-1 text-white text-xs sm:text-xs md:text-sm font-bold border border-blue-600 min-w-[60px] max-w-[100px] truncate"
                 >
-                  {time.split("-").join(" - ")}
+                  {time.replace("-", " - ")}
                 </th>
               ))}
             </tr>
@@ -302,32 +307,69 @@ const ProfessorTimetable = () => {
     <div className="background-main-pages">
       <Slidebar />
       <div className="max-w-screen-xl mx-auto p-4">
+        <Typography variant="h2" className="text-center mb-6">
+          Professor Schedule
+        </Typography>
+        
         <div className="flex gap-4 mb-6 justify-center">
           <button
             onClick={handlePrint}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
-            Print PDF
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Export PDF
           </button>
+
           <button
             onClick={exportToWord}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                clipRule="evenodd"
+              />
+            </svg>
             Export Word
           </button>
 
           <button
             onClick={exportToExcel}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2h-1.528a6 6 0 01-1.528-2V8.414A2 2 0 0010.586 7H8V5a1 1 0 011-1h1V3a1 1 0 10-2 0v1H6a2 2 0 00-2 2v1.528a6 6 0 01-2 1.528V4z"
+                clipRule="evenodd"
+              />
+            </svg>
             Export Excel
           </button>
         </div>
-
-        <Typography variant="h2" className="text-center mb-6">
-          Professor Schedule
-        </Typography>
-
+        
         <div className="mb-6">
           <Select
             label="Select Professor"

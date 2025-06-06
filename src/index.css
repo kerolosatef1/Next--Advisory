@@ -265,6 +265,15 @@
   }
 }
 
+.text-10{
+  font-size:  11px;
+}
+
+
+
+.text-7{
+  font-size:  7px;
+}
 
 
 
@@ -286,3 +295,113 @@
 
 
 
+
+
+/* للجداول على الشاشات الصغيرة */
+@media (max-width: 768px) {
+  .responsive-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .responsive-table th {
+    position: sticky;
+    top: 0;
+  }
+  
+  .responsive-table th:first-child {
+    left: 0;
+    z-index: 11;
+  }
+  
+  .time-slot {
+    transform: rotate(-45deg);
+    transform-origin: left top;
+    height: 100px;
+    width: 30px;
+    white-space: nowrap;
+    position: relative;
+    left: 50%;
+  }
+  
+  .time-slot span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.bg-lecture {
+    background-color: #3182ce !important;
+    color: white !important;
+    padding: 8px !important;
+    border-radius: 4px !important;
+    margin: 4px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  
+  .bg-sections {
+    background-color: #38a169 !important;
+    color: white !important;
+    padding: 8px !important;
+    border-radius: 4px !important;
+    margin: 4px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  
+  .bg-days {
+    background-color: #ef4444 !important;
+    color: white !important;
+    padding: 12px !important;
+  }
+  
+  /* تحسين التباعد في الخلايا */
+  td {
+    padding: 8px !important;
+    vertical-align: top !important;
+  }
+
+
+  @media print {
+    table {
+      width: 100% !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .bg-lecture, .bg-sections {
+      page-break-inside: avoid;
+    }
+  }

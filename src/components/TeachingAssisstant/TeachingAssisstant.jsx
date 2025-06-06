@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment, useRef } from "react";
 import React from "react";
 import axios from "axios";
-import imgLOGO from '../../assets/imagelogo.jpeg'
+import imgLOGO from "../../assets/imagelogo.jpeg";
 import {
   Input,
   Option,
@@ -41,7 +41,7 @@ const ProfessorCoursesManager = ({
   const dropdownRef = useRef(null);
   const queryClient = useQueryClient();
   const [selectedCourse, setSelectedCourse] = useState("");
-  
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -404,7 +404,7 @@ const GetTeachingAssistant = () => {
       return;
     }
   };
-  
+
   const resetForm = () => {
     setProfessor({ id: "", name: "", availability: [] });
     setIsEdit(false);
@@ -431,7 +431,6 @@ const GetTeachingAssistant = () => {
       });
       setIsEdit(true);
     } else {
-     
       console.log(
         "POST Data template:",
         JSON.stringify(
@@ -502,30 +501,32 @@ const GetTeachingAssistant = () => {
 
       <div className="background-main-pages ">
         <Slidebar />
-        <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
+        <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-2 sm:px-6 ">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 p-4 gap-4">
-        
             <div className="w-full md:w-auto flex justify-between items-center order-1">
-            
-              <a  className="flex items-center text-2xl font-semibold text-white">
-                <img className="rounded-md w-8 h-8 mr-2" src={imgLOGO} alt="logo"/>
+              <a className="flex items-center text-sm md:text-2xl  font-semibold text-white">
+                <img
+                  className="rounded-md w-8 h-8 mr-2"
+                  src={imgLOGO}
+                  alt="logo"
+                />
                 NEXT Advisory
               </a>
-          
-           
-              <div className="md:hidden  order-2">
-              <Button 
-                className="text-xs py-3 sm:px-0 px-6 rounded-lg active text-white "
-                onClick={() => handleOpen()} 
-                variant="gradient"
-              >
-                {isEdit ? "Modify Teaching assistant" : "Add Teaching assistant"}
 
-              </Button>
+              <div className="md:hidden  order-2">
+                <Button
+                  className="text-xs text-[9px] py-3  px-1  rounded-lg active  text-white "
+                  onClick={() => handleOpen()}
+                  variant="gradient"
+                >
+                  {isEdit
+                    ? "Modify Teaching assistant"
+                    : "Add Teaching assistant"}
+                      
+                </Button>
               </div>
             </div>
-          
-          
+
             <div className="w-full md:flex-1 md:mx-4 order-last md:order-3">
               <input
                 type="text"
@@ -535,14 +536,15 @@ const GetTeachingAssistant = () => {
                 className="w-full p-2 border rounded bg-white text-gray-800"
               />
             </div>
-          
+
             <div className="hidden md:block order-4">
-              <Button 
-                onClick={() => handleOpen()} 
+              <Button
+                onClick={() => handleOpen()}
                 className="text-xs  py-3 px-6 rounded-lg active text-white"
               >
-                                {isEdit ? "Modify Teaching assistant" : "Add Teaching assistant"}
-
+                {isEdit
+                  ? "Modify Teaching assistant"
+                  : "Add Teaching assistant"}
               </Button>
             </div>
           </div>
@@ -613,19 +615,20 @@ const GetTeachingAssistant = () => {
             <DialogFooter className="px-4 pb-4">
               <Button
                 className={`${
-                  (!professor.name.trim() || professor.availability.length === 0) 
-                    ? "bg-gray-400 cursor-not-allowed" 
+                  !professor.name.trim() || professor.availability.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
                     : "active "
                 } text-white px-6 py-3 rounded-lg`}
                 onClick={handleSubmit}
-                disabled={!professor.name.trim() || professor.availability.length === 0}
+                disabled={
+                  !professor.name.trim() || professor.availability.length === 0
+                }
               >
                 {isEdit ? "Save Modify" : "Submmit"}
               </Button>
             </DialogFooter>
           </Dialog>
           <Fragment>
-            
             <div className="flex flex-col ">
               <div className="-m-1.5 overflow-x-auto">
                 <div className="p-1.5 min-w-full inline-block align-middle">

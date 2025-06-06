@@ -28,6 +28,11 @@ import {
   Cog6ToothIcon,
   InboxIcon,
   PowerIcon,
+  AcademicCapIcon,
+  CalendarDateRangeIcon,
+  AtSymbolIcon,
+  CircleStackIcon
+  
 } from "@heroicons/react/24/solid";
 import {
   ChevronRightIcon,
@@ -35,6 +40,7 @@ import {
   CubeTransparentIcon,
   MagnifyingGlassIcon,
   Bars3Icon,
+  
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from 'react-router-dom';
@@ -106,7 +112,7 @@ const Slidebar = () => {
                   className="border-b-0 p-3"
                 >
                   <ListItemPrefix>
-                    <PresentationChartBarIcon className="h-5 w-5" />
+                    <CircleStackIcon className="h-5 w-5" />
                   </ListItemPrefix>
                   <Typography color="blue-gray" className="mr-auto font-normal">
                     Data Entry
@@ -161,7 +167,7 @@ const Slidebar = () => {
                   className="border-b-0 p-3"
                 >
                   <ListItemPrefix>
-                    <ShoppingBagIcon className="h-5 w-5" />
+                    <AcademicCapIcon className="h-5 w-5" />
                   </ListItemPrefix>
                   <Typography color="blue-gray" className="mr-auto font-normal">
                     Scheduling
@@ -203,6 +209,13 @@ const Slidebar = () => {
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
                     <button onClick={() => navigate('/special-student')}>Special Student</button>
+
+                  </ListItem>
+                    <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/all-special-student')}>All Special Student</button>
 
                   </ListItem>
                 </List>

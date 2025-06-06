@@ -32,6 +32,7 @@ import TimetablePage from './components/TimetablePage/TimetablePage';
 import ClassroomTimetable from './components/Hallschedule/Hallschedule';
 import ProfessorTimetable from './components/ProfessorSchedule/ProfessorSchedule';
 import SpecialStudent from './components/SpecialCaseStudent/SpecialCaseStudent';
+import StudentTimetable from './components/AllSpecialCaseStudent/AllSpecialCaseStudent';
 
 let query=new QueryClient({
   defaultOptions : {
@@ -62,7 +63,7 @@ function App() {
       {path:'hall-schedule',element:<ProtectedRouting><ClassroomTimetable/></ProtectedRouting>},
       {path:'professor-schedule',element:<ProtectedRouting><ProfessorTimetable/></ProtectedRouting>},
       {path:'special-student',element:<ProtectedRouting><SpecialStudent/></ProtectedRouting>},
-
+      {path:'all-special-student',element:<ProtectedRouting><StudentTimetable/></ProtectedRouting>},
       {path:'login',element:<Login/>},
       {path:'register',element:<Register/>},
       {path:'reset-password',element:<Resetpassword/>},

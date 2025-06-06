@@ -230,7 +230,7 @@ const GetHalls = () => {
         {/* التعديل على جزء البحث والزر */}
 <div className="flex flex-col  md:flex-row items-center justify-between mb-6 p-4 gap-4">
   <div className="w-full md:w-auto flex justify-between items-center order-1">
-    <a  className="flex items-center text-2xl font-semibold text-white">
+    <a  className="flex items-center  text-sm md:text-2xl font-semibold text-white">
                     <img className="rounded-md w-8 h-8 mr-2" src={imgLOGO} alt="logo"/>
                     NEXT Advisory
                   </a>
@@ -242,7 +242,7 @@ const GetHalls = () => {
           setOpen(true);
           resetForm(); 
         }} 
-        className="text-xs py-2 px-4 rounded-lg active text-white"
+        className="text-xs py-3 px-2 rounded-lg active text-white"
       >
         Add Hall
       </Button>
