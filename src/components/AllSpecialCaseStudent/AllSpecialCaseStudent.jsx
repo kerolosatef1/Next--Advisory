@@ -7,6 +7,7 @@ import LoadingAnimation from "../Loading/Loading";
 import Slidebar from "../Slidebar/Slidebar";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+
 const StudentTimetable = () => {
   const [studentsData, setStudentsData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -169,62 +170,111 @@ const StudentTimetable = () => {
  const handlePrint = useCallback(() => {
   if (!selectedStudent || !tableRef.current) return;
 
-  // أضف مؤشر تحميل أثناء إنشاء PDF
   toast.info('جاري إنشاء الملف...', { autoClose: 2000 });
 
-  // استخدام html2canvas لالتقاط لقطة للجدول
-  html2canvas(tableRef.current, {
-      scale: 2, // زيادة الدقة
-  quality: 1,
-  logging: false,
-  useCORS: true,
-  allowTaint: true,
-  letterRendering: true,
+  // احصل على عنصر الجدول
+  const tableElement = tableRef.current;
+  
+  // احسب الأبعاد المطلوبة للجدول
+  const tableWidth = tableElement.scrollWidth;
+  const tableHeight = tableElement.scrollHeight;
+  
+  // أضف هامش إضافي للرأس
+  const margin = 20;
+  const totalHeight = tableHeight + margin;
+
+  // قم بإنشاء عنصر مؤقت لاحتواء الجدول
+  const tempElement = document.createElement('div');
+  tempElement.style.position = 'absolute';
+  tempElement.style.left = '-9999px';
+  tempElement.style.width = `${tableWidth}px`;
+  tempElement.style.height = `${totalHeight}px`;
+  tempElement.style.overflow = 'visible';
+  
+  // نسخ الجدول إلى العنصر المؤقت
+  const tableClone = tableElement.cloneNode(true);
+  tempElement.appendChild(tableClone);
+  document.body.appendChild(tempElement);
+
+  html2canvas(tempElement, {
+    scale: 2,
+    width: tableWidth,
+    height: totalHeight,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: tableWidth,
+    windowHeight: totalHeight,
+    useCORS: true,
+    allowTaint: true,
+    letterRendering: true,
+    backgroundColor: '#ffffff'
   }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF({
-  orientation: 'landscape',
-  unit: 'mm',
-  format: 'a4',
-  hotfixes: ['px_scaling']
-});
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    // حساب أبعاد الصورة لتناسب الصفحة
+    // احسب نسبة العرض إلى الارتفاع
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = imgHeight / imgWidth;
-    const pdfWidth = pageWidth - 20; // هامش 10مم من كل جانب
-    const pdfHeight = pdfWidth * ratio;
-    
-    // إضافة الصورة إلى PDF
-    pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
+    const aspectRatio = imgWidth / imgHeight;
 
-    // إضافة رأس المستند
-    pdf.setFontSize(18);
+    // إنشاء PDF مع الاتجاه المناسب
+    const pdf = new jsPDF({
+      orientation: aspectRatio > 1 ? 'landscape' : 'portrait',
+      unit: 'mm'
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // حساب الأبعاد مع الحفاظ على النسبة
+    let finalWidth = pageWidth - 20;
+    let finalHeight = finalWidth / aspectRatio;
+
+    // إذا كان الارتفاع أكبر من الصفحة، اضبط العرض بناءً على الارتفاع
+    if (finalHeight > pageHeight - 20) {
+      finalHeight = pageHeight - 20;
+      finalWidth = finalHeight * aspectRatio;
+    }
+
+    // إضافة الصورة في منتصف الصفحة
+    const x = (pageWidth - finalWidth) / 2;
+    const y = (pageHeight - finalHeight) / 2;
+
+    pdf.addImage(canvas, 'PNG', x, y, finalWidth, finalHeight);
+
+    // إضافة معلومات الطالب في أعلى الصفحة
+    pdf.setFontSize(16);
     pdf.setTextColor(40, 40, 40);
-    pdf.text(`Student: ${selectedStudent.studentName}`, pageWidth / 2, 5, { align: 'center' });
-    pdf.setFontSize(14);
-    pdf.text(`ID: ${selectedStudent.studentId}`, pageWidth / 2, 10, { align: 'center' });
+    pdf.text(`Student: ${selectedStudent.studentName}`, pageWidth / 2, 10, { align: 'center' });
+    pdf.text(`ID: ${selectedStudent.studentId}`, pageWidth / 2, 15, { align: 'center' });
 
-    // حفظ الملف
     pdf.save(`Timetable_${selectedStudent.studentName}.pdf`);
     toast.success('تم إنشاء الملف بنجاح');
+    
+    // تنظيف العنصر المؤقت
+    document.body.removeChild(tempElement);
   }).catch((error) => {
     toast.error('حدث خطأ أثناء إنشاء الملف');
     console.error('Error generating PDF:', error);
+    document.body.removeChild(tempElement);
   });
 }, [selectedStudent]);
-  const exportToWord = useCallback(() => {
+
+const exportToWord = useCallback(() => {
   if (!selectedStudent || !tableRef.current) return;
 
   toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
 
-  // استخدام html2canvas لالتقاط لقطة للجدول (نفس التقنية المستخدمة في PDF)
-  html2canvas(tableRef.current, {
+  // تحديد أبعاد الجدول
+  const table = tableRef.current;
+  const tableWidth = table.scrollWidth;
+  const tableHeight = table.scrollHeight;
+
+  html2canvas(table, {
     scale: 2,
-    logging: false,
+    width: tableWidth,
+    height: tableHeight,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: tableWidth,
+    windowHeight: tableHeight,
     useCORS: true,
     allowTaint: true,
   }).then((canvas) => {
@@ -232,8 +282,8 @@ const StudentTimetable = () => {
     
     const header = `
       <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
-        <h2 style="color:#2d3748;margin:0;font-size:40px;">Student: ${selectedStudent.studentName}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;font-size:25px;">ID: ${selectedStudent.studentId}</h3>
+        <h2 style="color:#2d3748;margin:0;font-size:24px;">Student: ${selectedStudent.studentName}</h2>
+        <h3 style="color:#4a5568;margin:5px 0 0;font-size:18px;">ID: ${selectedStudent.studentId}</h3>
       </div>
     `;
 
@@ -244,45 +294,23 @@ const StudentTimetable = () => {
           <meta charset="UTF-8">
           <title>Student Timetable</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            table { 
-              border-collapse: collapse; 
-              width: 100%; 
-              margin-top: 20px;
-              -webkit-print-color-adjust: exact;
+            body { 
+              font-family: Arial, sans-serif; 
+              margin: 0; 
+              padding: 20px; 
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            th, td {
-              border: 1px solid #cbd5e0;
-              padding: 8px;
-              text-align: center;
-              vertical-align: top;
-            }
-            .lecture-cell {
-              background-color: #3182ce !important;
-              color: white !important;
-              padding: 8px !important;
-              border-radius: 4px !important;
-              margin: 4px 0 !important;
-              display: block !important;
-            }
-            .section-cell {
-              background-color: #38a169 !important;
-              color: white !important;
-              padding: 8px !important;
-              border-radius: 4px !important;
-              margin: 4px 0 !important;
-              display: block !important;
-            }
-            .day-header {
-              background-color: #ef4444 !important;
-              color: white !important;
-              padding: 12px !important;
+            .timetable-image {
+              width: 100%;
+              height: auto;
+              page-break-inside: avoid;
             }
           </style>
         </head>
         <body>
           ${header}
-          <img src="${imgData}" style="width:100%;height:auto;" alt="Timetable" />
+          <img src="${imgData}" class="timetable-image" alt="Timetable" />
         </body>
       </html>
     `;
@@ -376,6 +404,7 @@ const StudentTimetable = () => {
   }
 
   return (
+    
     <div className="background-main-pages">
       <Slidebar />
       <div className="max-w-screen-xl mx-auto rounded-md sm:px-6">
@@ -416,7 +445,7 @@ const StudentTimetable = () => {
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
     <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
   </svg>
-  Print PDF
+  Export PDF
 </button>
           <button
             onClick={exportToWord}
@@ -447,8 +476,8 @@ const StudentTimetable = () => {
 
         {timetableData && (
           <div className="overflow-x-auto">
-            <div className="overflow-x-auto" ref={tableRef}>
-              <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
+            <div  className="table-container" ref={tableRef}>
+              <table className="min-w-full bg-white shadow-lg ">
                 <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
                   <tr>
                     <th className="p-3 text-white font-bold border border-blue-600">

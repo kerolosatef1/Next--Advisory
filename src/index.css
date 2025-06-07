@@ -405,3 +405,20 @@
       page-break-inside: avoid;
     }
   }
+  /* تأكد من أن الجدول يأخذ المساحة الكافية */
+.table-container {
+  width: fit-content;
+  max-width: 100%;
+  overflow: auto;
+}
+
+/* تأكد من أن الخلايا لا تنكسر */
+table {
+  table-layout: fixed;
+  width: auto;
+}
+
+th, td {
+  white-space: nowrap;
+  min-width: 120px;
+}
