@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import {
   Typography,
@@ -29,69 +29,143 @@ const WeeklyTimetable = () => {
     { id: "6", name: "Thursday" },
     { id: "7", name: "Friday" },
   ];
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
   if (!selectedYear || !selectedGroup || !tableRef.current) return;
 
   toast.info('جاري إنشاء ملف PDF...', { autoClose: 2000 });
 
-  // استخدام html2canvas لالتقاط لقطة للجدول مع التنسيق
-  html2canvas(tableRef.current, {
-    scale: 2, // زيادة الدقة
-    logging: false,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: null,
-  }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF('landscape', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    // حساب أبعاد الصورة
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = imgHeight / imgWidth;
-    const pdfWidth = pageWidth - 20; // هامش 10مم من كل جانب
-    const pdfHeight = pdfWidth * ratio;
-    
-    // إضافة الصورة إلى PDF
-    pdf.addImage(imgData, 'PNG', 10, 20, pdfWidth, pdfHeight);
+  // إنشاء عنصر مؤقت لاحتواء الجدول
+  const table = tableRef.current;
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.width = `${table.scrollWidth}px`;
+  tempDiv.style.height = 'auto';
+  tempDiv.style.overflow = 'visible';
+  tempDiv.style.backgroundColor = '#ffffff';
+  tempDiv.style.padding = '20px';
 
-    // إضافة رأس المستند
-    pdf.setFontSize(30);
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(`Academic Year: ${selectedYear}`, pageWidth / 2, 10, { align: 'center' });
-    pdf.setFontSize(14);
-    pdf.text(`Group: ${selectedGroup}`, pageWidth / 2, 16, { align: 'center' });
+  // نسخ الجدول مع الحفاظ على الأنماط
+  const tableClone = table.cloneNode(true);
+  tempDiv.appendChild(tableClone);
+  document.body.appendChild(tempDiv);
 
-    // حفظ الملف
-    pdf.save(`Timetable_${selectedYear}_${selectedGroup}.pdf`);
-    toast.success('تم إنشاء ملف PDF بنجاح');
-  }).catch((error) => {
-    toast.error('حدث خطأ أثناء إنشاء الملف');
-    console.error('Error generating PDF:', error);
-  });
-};
+  // تأخير التنفيذ لضمان تحميل العنصر
+  setTimeout(() => {
+    html2canvas(tempDiv, {
+      scale: 2,
+      width: tempDiv.scrollWidth + 40,
+      height: tempDiv.scrollHeight + 40,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: tempDiv.scrollWidth + 40,
+      windowHeight: tempDiv.scrollHeight + 40,
+      useCORS: true,
+      allowTaint: true,
+      letterRendering: true,
+      backgroundColor: '#ffffff',
+      logging: true,
+      onclone: (clonedDoc) => {
+        // تحسين الأنماط للنسخة المستنسخة
+        const clonedTable = clonedDoc.querySelector('table');
+        if (clonedTable) {
+          clonedTable.style.width = 'auto';
+          clonedTable.style.height = 'auto';
+          clonedTable.style.tableLayout = 'auto';
+        }
+        
+        const cells = clonedDoc.querySelectorAll('.bg-lecture, .bg-sections');
+        cells.forEach(cell => {
+          cell.style.padding = '12px';
+          cell.style.marginBottom = '8px';
+          cell.style.whiteSpace = 'normal';
+        });
+      }
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-  const exportToWord = () => {
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // حساب الأبعاد مع الحفاظ على النسبة
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = imgHeight / imgWidth;
+      let pdfWidth = pageWidth - 20; // هامش 10مم من كل جانب
+      let pdfHeight = pdfWidth * ratio;
+
+      // ضبط الأبعاد إذا كانت أكبر من الصفحة
+      if (pdfHeight > pageHeight - 20) {
+        pdfHeight = pageHeight - 20;
+        pdfWidth = pdfHeight / ratio;
+      }
+
+      // إضافة الصورة إلى PDF
+      const x = (pageWidth - pdfWidth) / 2;
+      const y = (pageHeight - pdfHeight) / 2;
+      pdf.addImage(imgData, 'PNG', x, y, pdfWidth, pdfHeight);
+
+      // إضافة رأس المستند
+      pdf.setFontSize(16);
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(`Academic Year: ${selectedYear}`, pageWidth / 2, 10, { align: 'center' });
+      pdf.setFontSize(14);
+      pdf.text(`Group: ${selectedGroup}`, pageWidth / 2, 16, { align: 'center' });
+
+      pdf.save(`Timetable_${selectedYear}_${selectedGroup}.pdf`);
+      toast.success('تم إنشاء ملف PDF بنجاح');
+      
+      // تنظيف العنصر المؤقت
+      document.body.removeChild(tempDiv);
+    }).catch((error) => {
+      toast.error('حدث خطأ أثناء إنشاء الملف');
+      console.error('Error generating PDF:', error);
+      document.body.removeChild(tempDiv);
+    });
+  }, 500);
+}, [selectedYear, selectedGroup]);
+
+  const exportToWord = useCallback(() => {
   if (!selectedYear || !selectedGroup || !tableRef.current) return;
 
   toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
 
-  // استخدام نفس تقنية html2canvas لضمان التطابق التام
-  html2canvas(tableRef.current, {
+  // إنشاء عنصر مؤقت
+  const tableElement = tableRef.current;
+  const tempElement = document.createElement('div');
+  tempElement.style.position = 'absolute';
+  tempElement.style.left = '-9999px';
+  tempElement.style.width = `${tableElement.scrollWidth}px`;
+  tempElement.appendChild(tableElement.cloneNode(true));
+  document.body.appendChild(tempElement);
+
+  html2canvas(tempElement, {
     scale: 2,
-    logging: false,
+    width: tableElement.scrollWidth,
+    height: tableElement.scrollHeight,
+    onclone: (clonedDoc) => {
+      // تطبيق الأنماط الإضافية
+      const cells = clonedDoc.querySelectorAll('.bg-lecture, .bg-sections');
+      cells.forEach(cell => {
+        cell.style.padding = '12px';
+        cell.style.marginBottom = '8px';
+      });
+    },
     useCORS: true,
     allowTaint: true,
-    backgroundColor: null,
+    backgroundColor: '#ffffff'
   }).then((canvas) => {
     const imgData = canvas.toDataURL('image/png');
     
     const header = `
       <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
-        <h2 style="color:#2d3748;margin:0;font-size:60px;">Academic Year: ${selectedYear}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;font-size:50px;">Group: ${selectedGroup}</h3>
+        <h2 style="color:#2d3748;margin:0;font-size:50px;">Academic Year: ${selectedYear}</h2>
+        <h3 style="color:#4a5568;margin:5px 0 0;font-size:40px;">Group: ${selectedGroup}</h3>
       </div>
     `;
 
@@ -103,12 +177,13 @@ const WeeklyTimetable = () => {
           <title>Weekly Timetable</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            img { max-width: 100%; height: auto; }
+            .timetable-image { width: 100%; height: auto; }
+            .lecture-cell { padding: 12px !important; margin-bottom: 8px !important; }
           </style>
         </head>
         <body>
           ${header}
-          <img src="${imgData}" alt="Timetable" />
+          <img src="${imgData}" class="timetable-image" alt="Timetable" />
         </body>
       </html>
     `;
@@ -124,12 +199,163 @@ const WeeklyTimetable = () => {
     link.click();
     document.body.removeChild(link);
     toast.success('تم إنشاء ملف Word بنجاح');
+    
+    // تنظيف العنصر المؤقت
+    document.body.removeChild(tempElement);
   }).catch((error) => {
     toast.error('حدث خطأ أثناء إنشاء الملف');
     console.error('Error generating Word:', error);
+    document.body.removeChild(tempElement);
   });
-};
+}, [selectedYear, selectedGroup]);
 
+
+const exportAllTablesToPDF = useCallback(async () => {
+  if (!organizedData || Object.keys(organizedData).length === 0) return;
+
+  toast.info('جاري إنشاء ملفات PDF لجميع الجداول...', { autoClose: false });
+
+  try {
+    // إنشاء مجلد ZIP لحفظ جميع الملفات (اختياري)
+    const zip = new JSZip();
+    const pdfFolder = zip.folder("timetables");
+    
+    // تصدير كل سنة ومجموعة
+    for (const year of Object.keys(organizedData)) {
+      for (const group of Object.keys(organizedData[year])) {
+        // تحديث حالة التحميل
+        toast.update(toastId, {
+          render: `جاري إنشاء PDF للسنة ${year} والمجموعة ${group}...`
+        });
+
+        // إنشاء عنصر مؤقت للجدول الحالي
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.width = '100%';
+        tempDiv.style.backgroundColor = '#ffffff';
+        tempDiv.style.padding = '20px';
+
+        // إنشاء جدول مؤقت للسنوات والمجموعات
+        const tableHtml = `
+          <table class="min-w-full bg-white shadow-lg">
+            <thead class="bg-gradient-to-r from-blue-500 to-blue-700">
+              <tr>
+                <th class="p-3 text-white font-bold border border-blue-600">Day/Time</th>
+                ${timeSlots.map(time => {
+                  const [start, end] = time.split("-");
+                  return `
+                    <th class="py-2 px-1 text-white text-xs sm:text-xs md:text-sm font-bold border border-blue-600 min-w-[60px] max-w-[100px] truncate">
+                      ${start} - ${end}
+                    </th>
+                  `;
+                }).join('')}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              ${daysOfWeek.map(day => `
+                <tr key="${day.id}" class="hover:bg-gray-50">
+                  <td class="p-3 font-semibold text-white text-center bg-slate-600 border border-gray-300">
+                    ${day.name}
+                  </td>
+                  ${timeSlots.map(time => {
+                    const lectures = organizedData[year][group][day.id]?.[time] || [];
+                    return `
+                      <td class="p-2 border border-gray-300">
+                        ${lectures.map((lecture, idx) => `
+                          <div key="${idx}" class="mb-3 p-3 rounded-md ${lecture.type === "lecture" ? "bg-lecture" : "bg-sections"}">
+                            <div class="flex flex-col gap-2">
+                              <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm md:text-base">
+                                  ${lecture.course}
+                                </span>
+                                <span class="text-white text-xs md:text-sm">
+                                  ${lecture.type === "lecture" ? "Lecture" : "Section"}
+                                </span>
+                              </div>
+                              <div class="h-2"></div>
+                              <div class="text-white text-xs md:text-sm">
+                                <div>${lecture.professor}</div>
+                                <div class="mt-1">${lecture.room || "غير محدد"}</div>
+                              </div>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </td>
+                    `;
+                  }).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        tempDiv.innerHTML = tableHtml;
+        document.body.appendChild(tempDiv);
+
+        // انتظر حتى يتم تحميل العنصر
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // إنشاء PDF للجدول الحالي
+        const canvas = await html2canvas(tempDiv, {
+          scale: 2,
+          width: tempDiv.scrollWidth + 40,
+          height: tempDiv.scrollHeight + 40,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgHeight / imgWidth;
+        let pdfWidth = pageWidth - 20;
+        let pdfHeight = pdfWidth * ratio;
+
+        if (pdfHeight > pageHeight - 20) {
+          pdfHeight = pageHeight - 20;
+          pdfWidth = pdfHeight / ratio;
+        }
+
+        const x = (pageWidth - pdfWidth) / 2;
+        const y = (pageHeight - pdfHeight) / 2;
+        pdf.addImage(canvas, 'PNG', x, y, pdfWidth, pdfHeight);
+
+        pdf.setFontSize(16);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(`Academic Year: ${year}`, pageWidth / 2, 10, { align: 'center' });
+        pdf.text(`Group: ${group}`, pageWidth / 2, 16, { align: 'center' });
+
+        // حفظ PDF كملف منفصل
+        pdf.save(`Timetable_${year}_${group}.pdf`);
+
+        // إضافة PDF إلى مجلد ZIP (اختياري)
+        const pdfData = pdf.output('blob');
+        pdfFolder.file(`Timetable_${year}_${group}.pdf`, pdfData);
+
+        // تنظيف العنصر المؤقت
+        document.body.removeChild(tempDiv);
+      }
+    }
+
+    // حفظ جميع الملفات في ZIP واحد (اختياري)
+    const zipContent = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipContent, 'all_timetables.zip');
+
+    toast.success('تم إنشاء جميع ملفات PDF بنجاح');
+  } catch (error) {
+    toast.error('حدث خطأ أثناء إنشاء الملفات');
+    console.error('Error generating all PDFs:', error);
+  }
+}, [organizedData, timeSlots, daysOfWeek]);
   const exportToExcel = () => {
     // إنشاء بيانات Excel مع الهيدر
     const csvContent = [
@@ -323,35 +549,32 @@ const WeeklyTimetable = () => {
                       {day.name}
                     </td>
                     {timeSlots.map((time) => (
-                      <td key={time} className="p-3 border border-gray-300">
-                        {organizedData[selectedYear][selectedGroup][day.id]?.[
-                          time
-                        ]?.map((lecture, idx) => (
-                          <div
-                            key={idx}
-                            className={`mb-2 p-2 rounded ${
-                              lecture.type === "lecture"
-                                ? "bg-lecture"
-                                : "bg-sections"
-                            }`}
-                          >
-                            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-1 md:gap-0">
-                              <span className=" font-bold text-white">
-                                {lecture.course}
-                              </span>
-                              <span className="text-sm text-white">
-                                {lecture.type === "lecture"
-                                  ? "Lecture"
-                                  : "Section"}
-                              </span>
-                            </div>
-                            <div className="text-sm text-white">
-                              <div> {lecture.professor}</div>
-                              <div> {lecture.room || "غير محدد"}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </td>
+                      <td key={time} className="p-2 border border-gray-300">
+  {organizedData[selectedYear][selectedGroup][day.id]?.[time]?.map((lecture, idx) => (
+    <div
+      key={idx}
+      className={`mb-3 p-3 rounded-md ${
+        lecture.type === "lecture" ? "bg-lecture" : "bg-sections"
+      }`}
+    >
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <span className="font-bold text-white text-sm md:text-base">
+            {lecture.course}
+          </span>
+          <span className="text-white text-xs md:text-sm">
+            {lecture.type === "lecture" ? "Lecture" : "Section"}
+          </span>
+        </div>
+        <div className="h-2"></div> {/* مسافة إضافية */}
+        <div className="text-white text-xs md:text-sm">
+          <div>{lecture.professor}</div>
+          <div className="mt-1">{lecture.room || "غير محدد"}</div>
+        </div>
+      </div>
+    </div>
+  ))}
+</td>
                     ))}
                   </tr>
                 ))}
@@ -396,6 +619,7 @@ const WeeklyTimetable = () => {
             >
               Export Excel
             </button>
+            
           </div>
           <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-3 mb-3 md:gap-3">
             <Select

@@ -229,9 +229,9 @@ export default function Home() {
                                 <span className="bg-gradient-to-r from-cyan-300 to-indigo-300 bg-clip-text text-transparent">Get Start</span>
                             </button>
                         </div>
-                        <button className="px-6 py-3 bg-transparent border border-cyan-500/30 rounded-lg text-cyan-400 text-base font-medium flex items-center justify-center gap-2 hover:bg-cyan-900/10 hover:border-cyan-500/50 transition-all duration-300">
+                        <Link to="/learn-more" className="px-6 py-3 bg-transparent border border-cyan-500/30 rounded-lg text-cyan-400 text-base font-medium flex items-center justify-center gap-2 hover:bg-cyan-900/10 hover:border-cyan-500/50 transition-all duration-300">
                             Learn More
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -325,12 +325,12 @@ export default function Home() {
                                         <div className="font-medium text-lg text-indigo-300 group-hover:text-indigo-200 transition-colors">Back-End</div>
                                     </div>
                                     <p className="text-gray-400 mb-4">We used .NET API To Export Api And Passes Data To Algorithm , C# To Build Data Base </p>
-                                    <a href="#" className="mt-auto text-indigo-400 hover:text-indigo-300 inline-flex items-center">
+                                    <Link to="/learn/backend" className="mt-auto text-indigo-400 hover:text-indigo-300 inline-flex items-center">
                                         Learn more
                                         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                         </svg>
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -406,7 +406,7 @@ export default function Home() {
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
                                     <div className="text-xl font-medium text-white mb-2">Displayed Groups Schedule</div>
                                     <p className="text-gray-200 mb-4">Divide the tables into groups, each group has its own table . EX : Group/1-B | Year/1</p>
-                                    <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
+                                    <Link to="/view-group-schedule" className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</Link>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
@@ -419,7 +419,7 @@ export default function Home() {
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
                                     <div className="text-xl font-medium text-white mb-2">Display Hall Schedule</div>
                                     <p className="text-gray-200 mb-4">Distribution of halls for lectures and sections according to the classification of each hall . Ex / 14001 Section</p>
-                                    <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
+                                    <Link to="/view-hall-schedule" className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</Link>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
@@ -433,7 +433,7 @@ export default function Home() {
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
                                     <div className="text-xl font-medium text-white mb-2">Display Professors Schedule</div>
                                     <p className="text-gray-200 mb-4">Distribution of materials to doctors and teaching assistants</p>
-                                    <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
+                                    <Link to="/view-professor-schedule" className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</Link>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
@@ -447,7 +447,7 @@ export default function Home() {
                                 <div className="text-center p-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300">
                                     <div className="text-xl font-medium text-white mb-2">Display Special Student Schedule</div>
                                     <p className="text-gray-200 mb-4">Students outside the standard credit hour range</p>
-                                    <button className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</button>
+                                    <Link to="/view-specialstudent-schedule" className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded text-white hover:bg-white/30 transition-colors duration-300">View Details</Link>
                                 </div>
                             </div>
                             <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">

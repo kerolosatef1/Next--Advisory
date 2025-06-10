@@ -33,6 +33,13 @@ import ClassroomTimetable from './components/Hallschedule/Hallschedule';
 import ProfessorTimetable from './components/ProfessorSchedule/ProfessorSchedule';
 import SpecialStudent from './components/SpecialCaseStudent/SpecialCaseStudent';
 import StudentTimetable from './components/AllSpecialCaseStudent/AllSpecialCaseStudent';
+import Learnmore from './components/Learnmore/Learnmore';
+import LearnMore from './components/Learnmore/Learnmore';
+import GroupSchedulePage from './components/Viewgroupschedule/Viewgroupschedule';
+import HallSchedulePage from './components/Viewhallschedule/Viewhallschedule';
+import ProfessorSchedulePage from './components/Viewprofessorschedule/Viewprofessorschedule';
+import SpecialStudentSchedulePage from './components/Viewspecialstudentschedule/Viewspecialstudentschedule';
+import Learnbackend from './components/Leranbackend/Leranbackend';
 
 let query=new QueryClient({
   defaultOptions : {
@@ -64,6 +71,14 @@ function App() {
       {path:'professor-schedule',element:<ProtectedRouting><ProfessorTimetable/></ProtectedRouting>},
       {path:'special-student',element:<ProtectedRouting><SpecialStudent/></ProtectedRouting>},
       {path:'all-special-student',element:<ProtectedRouting><StudentTimetable/></ProtectedRouting>},
+      {path:'learn-more',element:<LearnMore/>},
+      {path:'learn/backend',element:<Learnbackend/>},
+
+      {path:'view-group-schedule',element:<GroupSchedulePage/>},
+      {path:'view-hall-schedule',element:<HallSchedulePage/>},
+      {path:'view-professor-schedule',element:<ProfessorSchedulePage/>},
+      {path:'view-specialstudent-schedule',element:<SpecialStudentSchedulePage/>},
+
       {path:'login',element:<Login/>},
       {path:'register',element:<Register/>},
       {path:'reset-password',element:<Resetpassword/>},

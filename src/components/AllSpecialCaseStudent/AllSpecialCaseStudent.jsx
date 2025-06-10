@@ -15,6 +15,7 @@ const StudentTimetable = () => {
   const [loading, setLoading] = useState(true);
   const tableRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
+  
   const daysOfWeek = useMemo(
     () => [
       { id: "1", name: "Saturday" },
@@ -245,7 +246,7 @@ const StudentTimetable = () => {
     pdf.text(`Student: ${selectedStudent.studentName}`, pageWidth / 2, 10, { align: 'center' });
     pdf.text(`ID: ${selectedStudent.studentId}`, pageWidth / 2, 15, { align: 'center' });
 
-    pdf.save(`Timetable_${selectedStudent.studentName}.pdf`);
+    pdf.save(`Timetable_${selectedStudent.studentName}_${selectedStudent.studentId}.pdf`);
     toast.success('تم إنشاء الملف بنجاح');
     
     // تنظيف العنصر المؤقت
@@ -476,7 +477,7 @@ const exportToWord = useCallback(() => {
 
         {timetableData && (
           <div className="overflow-x-auto">
-            <div  className="table-container" ref={tableRef}>
+            <div  className=" " ref={tableRef}>
               <table className="min-w-full bg-white shadow-lg ">
                 <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
                   <tr>

@@ -98,7 +98,7 @@ const GenerateSchedule = () => {
       } catch (error) {
         throw new Error(
           error.response?.data?.message ||
-            "Talk to Andrew to open the algorithm server 😂😂😂"
+            "Problem in Server please call me , and we will open server !!"
         );
       }
     },

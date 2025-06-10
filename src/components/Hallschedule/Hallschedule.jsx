@@ -11,8 +11,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingAnimation from "../Loading/Loading";
 import Slidebar from "../Slidebar/Slidebar";
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 const WeeklyClassroomTimetable = () => {
   const [organizedData, setOrganizedData] = useState({});
   const [selectedClassroom, setSelectedClassroom] = useState("");
@@ -68,7 +68,7 @@ const WeeklyClassroomTimetable = () => {
   };
 
   // الدوال المساعدة لمعالجة الوقت
- const normalizeTime = (time) => {
+  const normalizeTime = (time) => {
     if (!time) return "00:00-00:00";
 
     const cleanedTime = time.replace(/\s+/g, "").replace(/[^0-9:-]/g, "");
@@ -129,68 +129,73 @@ const WeeklyClassroomTimetable = () => {
 
     fetchData();
   }, []);
-  
-// دالة تصدير PDF
-const exportToPDF = () => {
-  if (!selectedClassroom || !tableRef.current) return;
 
-  toast.info('جاري إنشاء ملف PDF...', { autoClose: 2000 });
+  // دالة تصدير PDF
+  const exportToPDF = () => {
+    if (!selectedClassroom || !tableRef.current) return;
 
-  html2canvas(tableRef.current, {
-    scale: 2,
-    logging: false,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: null,
-  }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF('landscape', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = imgHeight / imgWidth;
-    const pdfWidth = pageWidth - 20;
-    const pdfHeight = pdfWidth * ratio;
-    
-    pdf.addImage(imgData, 'PNG', 10, 20, pdfWidth, pdfHeight);
+    toast.info("جاري إنشاء ملف PDF...", { autoClose: 2000 });
 
-    // إضافة رأس المستند
-    pdf.setFontSize(18);
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(`Classroom: ${selectedClassroom}`, pageWidth / 2, 10, { align: 'center' });
+    html2canvas(tableRef.current, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const pdf = new jsPDF("landscape", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-    pdf.save(`Classroom_Timetable_${selectedClassroom}.pdf`);
-    toast.success('تم إنشاء ملف PDF بنجاح');
-  }).catch((error) => {
-    toast.error('حدث خطأ أثناء إنشاء الملف');
-    console.error('Error generating PDF:', error);
-  });
-};
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgHeight / imgWidth;
+        const pdfWidth = pageWidth - 20;
+        const pdfHeight = pdfWidth * ratio;
 
-// دالة تصدير Word
-const exportToWord = () => {
-  if (!selectedClassroom || !tableRef.current) return;
+        pdf.addImage(imgData, "PNG", 10, 20, pdfWidth, pdfHeight);
 
-  toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
+        // إضافة رأس المستند
+        pdf.setFontSize(18);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(`Classroom: ${selectedClassroom}`, pageWidth / 2, 10, {
+          align: "center",
+        });
 
-  html2canvas(tableRef.current, {
-    scale: 2,
-    logging: false,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: null,
-  }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png');
-    
-    const header = `
+        pdf.save(`Classroom_Timetable_${selectedClassroom}.pdf`);
+        toast.success("تم إنشاء ملف PDF بنجاح");
+      })
+      .catch((error) => {
+        toast.error("حدث خطأ أثناء إنشاء الملف");
+        console.error("Error generating PDF:", error);
+      });
+  };
+
+  // دالة تصدير Word
+  const exportToWord = () => {
+    if (!selectedClassroom || !tableRef.current) return;
+
+    toast.info("جاري إنشاء ملف Word...", { autoClose: 2000 });
+
+    html2canvas(tableRef.current, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+
+        const header = `
       <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
         <h2 style="color:#2d3748;margin:0;font-size:22px;">Classroom: ${selectedClassroom}</h2>
       </div>
     `;
 
-    const htmlContent = `
+        const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" 
             xmlns:w="urn:schemas-microsoft-com:office:word">
         <head>
@@ -208,22 +213,23 @@ const exportToWord = () => {
       </html>
     `;
 
-    const blob = new Blob(['\ufeff', htmlContent], {
-      type: 'application/msword'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Classroom_Timetable_${selectedClassroom}.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('تم إنشاء ملف Word بنجاح');
-  }).catch((error) => {
-    toast.error('حدث خطأ أثناء إنشاء الملف');
-    console.error('Error generating Word:', error);
-  });
-};
+        const blob = new Blob(["\ufeff", htmlContent], {
+          type: "application/msword",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Classroom_Timetable_${selectedClassroom}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("تم إنشاء ملف Word بنجاح");
+      })
+      .catch((error) => {
+        toast.error("حدث خطأ أثناء إنشاء الملف");
+        console.error("Error generating Word:", error);
+      });
+  };
 
   // عرض الجدول
   const renderTable = () => {
@@ -258,7 +264,10 @@ const exportToWord = () => {
                   <td key={time} className="p-3 border border-gray-300">
                     {organizedData[selectedClassroom][day.id]?.[time]?.map(
                       (lecture, idx) => (
-                        <div key={idx} className="mb-2 p-2 rounded bg-green-300">
+                        <div
+                          key={idx}
+                          className="mb-2 p-2 rounded bg-green-300"
+                        >
                           <div className="text-sm text-gray-800">
                             {lecture.course}
                           </div>
@@ -324,29 +333,46 @@ const exportToWord = () => {
           </Select>
         </div>
 
-<div className="flex gap-4 mb-6 justify-center">
-  <button
-    onClick={exportToPDF}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
-    </svg>
-    Export PDF
-  </button>
+        <div className="flex gap-4 mb-6 justify-center">
+          <button
+            onClick={exportToPDF}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Export PDF
+          </button>
 
-  <button
-    onClick={exportToWord}
-    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-    </svg>
-    Export Word
-  </button>
-</div>
+          <button
+            onClick={exportToWord}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Export Word
+          </button>
+        </div>
         {renderTable()}
-        
       </div>
     </div>
   );
