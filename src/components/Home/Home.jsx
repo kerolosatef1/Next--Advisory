@@ -303,12 +303,7 @@ export default function Home() {
                                         <div className="font-medium text-lg text-indigo-300 group-hover:text-indigo-200 transition-colors">UI Design</div>
                                     </div>
                                     <p className="text-gray-400 mb-4">Create stunning user interfaces with our futuristic design components and templates.</p>
-                                    <a href="#" className="mt-auto text-indigo-400 hover:text-indigo-300 inline-flex items-center">
-                                        Learn more
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </a>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -325,12 +320,7 @@ export default function Home() {
                                         <div className="font-medium text-lg text-indigo-300 group-hover:text-indigo-200 transition-colors">Back-End</div>
                                     </div>
                                     <p className="text-gray-400 mb-4">We used .NET API To Export Api And Passes Data To Algorithm , C# To Build Data Base </p>
-                                    <Link to="/learn/backend" className="mt-auto text-indigo-400 hover:text-indigo-300 inline-flex items-center">
-                                        Learn more
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </Link>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -349,12 +339,6 @@ export default function Home() {
                                         <div className="font-medium text-lg text-purple-300 group-hover:text-purple-200 transition-colors">Algorithm AI</div>
                                     </div>
                                     <p className="text-gray-400 mb-4">C++ Scheduling Engine To Generate Conflict-Free TimeTables And Returns in JSON Format And API can Reads And Parses The Result To Front-end </p>
-                                    <a href="#" className="mt-auto text-purple-400 hover:text-purple-300 inline-flex items-center">
-                                        Learn more
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -373,12 +357,7 @@ export default function Home() {
                                         <div className="font-medium text-lg text-cyan-300 group-hover:text-cyan-200 transition-colors">Front-End</div>
                                     </div>
                                     <p className="text-gray-400 mb-4">We Used FrameWork React , Tailwind , JSX , Redux TO Build Front-End And Integration With API </p>
-                                    <a href="#" className="mt-auto text-cyan-400 hover:text-cyan-300 inline-flex items-center">
-                                        Learn more
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                    </a>
+                                    
                                 </div>
                             </div>
                         </div>
