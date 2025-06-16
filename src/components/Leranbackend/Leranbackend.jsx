@@ -6,7 +6,6 @@ import entity from "../../assets/entity.png";
 import sequence from "../../assets/sequense.png";
 
 
-
 export default function Learnbackend() {
   return <>
     <div className="bg-black text-white font-['Space_Grotesk'] min-h-screen pt-20">

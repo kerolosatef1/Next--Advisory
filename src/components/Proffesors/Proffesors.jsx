@@ -41,7 +41,7 @@ const ProfessorCoursesManager = ({
   const dropdownRef = useRef(null);
   const queryClient = useQueryClient();
   const [selectedCourse, setSelectedCourse] = useState("");
-  // إغلاق القائمة عند النقر خارجها
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -51,7 +51,6 @@ const ProfessorCoursesManager = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   // جلب جميع المواد
   const { data: courses = [], isLoading: coursesLoading } = useQuery({
     queryKey: ["courses"],
@@ -73,24 +72,25 @@ const ProfessorCoursesManager = ({
   });
   const selectedCourseName =
     courses.find((c) => c.id === selectedCourse)?.name || "";
-  const { data: courseProfessors = [], isLoading: assignedLoading } = useQuery({
-    queryKey: ["courseProfessors"],
-    queryFn: async () => {
-      const token = localStorage.getItem("userToken");
-      const { data } = await axios.get(
-        "https://timetableapi.runasp.net/api/CourseProfessors",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return data;
-    },
-    staleTime: 5000,
-    refetchInterval: 1000,
-  });
+  const { data: courseProfessors = [], isLoading: assignedLoading } =
+    useQuery({
+      queryKey: ["courseProfessors"],
+      queryFn: async () => {
+        const token = localStorage.getItem("userToken");
+        const { data } = await axios.get(
+          "https://timetableapi.runasp.net/api/CourseProfessors",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        return data;
+      },
+      staleTime: 5000,
+      refetchInterval: 1000,
+    });
   const professorCourses = courseProfessors.filter(
     (cp) => cp.idProfessor === professorId
   );
@@ -113,7 +113,7 @@ const ProfessorCoursesManager = ({
     },
   });
 
- 
+  // حذف مادة
   const unassignMutation = useMutation({
     mutationFn: (courseId) =>
       axios.delete(
@@ -130,109 +130,111 @@ const ProfessorCoursesManager = ({
 
   return <>
     <div className="p-4 mt-4 bg-gray-100 rounded-lg text-center z-10 ">
-      <Dialog
-        size="xl"
-        open={manageOpen}
-        handler={setManageOpen}
-        className="rounded-lg relative "
-      >
-        <DialogHeader className="bg-gray-100 border-b flex justify-between items-center py-3 px-6">
-          <Typography variant="h5" className="text-gray-800">
-            DR/ {selectedProfessor?.name}
-          </Typography>
-          <IconButton
-            variant="text"
-            color="gray"
-            onClick={() => setManageOpen(false)}
-          >
-            <XMarkIcon className="h-5 w-5 text-gray-700" />
-          </IconButton>
-        </DialogHeader>
-
-        <DialogBody className="p-6 space-y-4">
-          <div className="border rounded-lg p-4" ref={dropdownRef}>
-            <div className="relative">
-              <div
-                className="w-full p-2 border rounded-lg bg-white cursor-pointer flex items-center justify-between"
-                onClick={() => setShowDropdown(!showDropdown)}
-              >
-                <span
-                  className={selectedCourse ? "text-gray-800" : "text-gray-400"}
+            <Dialog
+              size="xl"
+              open={manageOpen}
+              handler={setManageOpen}
+              className="rounded-lg relative "
+            >
+              <DialogHeader className="bg-gray-100 border-b flex justify-between items-center py-3 px-5">
+                <Typography variant="h5" className="text-gray-800">
+                  DR/ {selectedProfessor?.name}
+                </Typography>
+                <IconButton
+                  variant="text"
+                  color="gray"
+                  onClick={() => setManageOpen(false)}
                 >
-                  {selectedCourseName || "Select Courses"}
-                </span>
-                <ChevronDownIcon className="w-5 h-5 text-gray-600 transition-transform duration-200" />
-              </div>
-
-              {showDropdown && (
-                <div className="absolute z-50 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {coursesLoading ? (
-                    <div className="p-3 text-center text-gray-500">
-                      <td colSpan="7" className="text-center py-4 text-white">
-                        <LoadingAnimation />
-                      </td>
-                    </div>
-                  ) : courses.length === 0 ? (
-                    <div className="p-3 text-center text-gray-500">
-                      Not Have Any Courses
-                    </div>
-                  ) : (
-                    courses.map((course) => (
-                      <div
-                        key={course.id}
-                        className={`p-3 hover:bg-blue-50 cursor-pointer ${
-                          selectedCourse === course.id ? "bg-blue-50" : ""
-                        }`}
-                        onClick={() => {
-                          setSelectedCourse(course.id);
-                          setShowDropdown(false);
-                        }}
+                  <XMarkIcon className="h-5 w-5 text-gray-700" />
+                </IconButton>
+              </DialogHeader>
+    
+              <DialogBody className="p-6 space-y-4">
+                <div className="border rounded-lg p-4" ref={dropdownRef}>
+                  <div className="relative">
+                    <div
+                      className="w-full p-2 border rounded-lg bg-white cursor-pointer flex items-center justify-between"
+                      onClick={() => setShowDropdown(!showDropdown)}
+                    >
+                      <span
+                        className={
+                          selectedCourse ? "text-gray-800" : "text-gray-400"
+                        }
                       >
-                        <span className="text-gray-800">{course.name}</span>
+                        {selectedCourseName || "Select Courses"}
+                      </span>
+                      <ChevronDownIcon className="w-5 h-5 text-gray-600 transition-transform duration-200" />
+                    </div>
+    
+                    {showDropdown && (
+                      <div className="absolute z-50 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {coursesLoading ? (
+                          <div className="p-3 text-center text-gray-500">
+                            <td colSpan="7" className="text-center py-4 text-white">
+                              <LoadingAnimation />
+                            </td>
+                          </div>
+                        ) : courses.length === 0 ? (
+                          <div className="p-3 text-center text-gray-500">
+                            Not Have Any Courses
+                          </div>
+                        ) : (
+                          courses.map((course) => (
+                            <div
+                              key={course.id}
+                              className={`p-3 hover:bg-blue-50 cursor-pointer ${
+                                selectedCourse === course.id ? "bg-blue-50" : ""
+                              }`}
+                              onClick={() => {
+                                setSelectedCourse(course.id);
+                                setShowDropdown(false);
+                              }}
+                            >
+                              <span className="text-gray-800">{course.name}</span>
+                            </div>
+                          ))
+                        )}
                       </div>
-                    ))
-                  )}
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <Typography variant="h6" className="mb-4 text-gray-700">
-              Currently Assigned Courses
-            </Typography>
-            <div className="space-y-3">
-              {professorCourses?.map((cp) => (
-                <div
-                  key={cp.idCourse}
-                  className="flex justify-between items-center bg-gray-50 p-3 rounded-md"
+    
+                <div className="border rounded-lg p-4">
+                  <Typography variant="h6" className="mb-4 text-gray-700">
+                    Currently Assigned Courses
+                  </Typography>
+                  <div className="space-y-3">
+                    {professorCourses?.map((cp) => (
+                      <div
+                        key={cp.idCourse}
+                        className="flex justify-between items-center bg-gray-50 p-3 rounded-md"
+                      >
+                        <span className="text-gray-700">{cp.nameCourse}</span>
+                        <Button
+                          variant="text"
+                          color="red"
+                          size="sm"
+                          onClick={() => unassignMutation.mutate(cp.idCourse)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </DialogBody>
+    
+              <DialogFooter className="bg-gray-50 border-t px-5 py-4">
+                <Button
+                  fullWidth
+                  color="green"
+                  onClick={() => assignMutation.mutate(selectedCourse)}
                 >
-                  <span className="text-gray-700">{cp.nameCourse}</span>
-                  <Button
-                    variant="text"
-                    color="red"
-                    size="sm"
-                    onClick={() => unassignMutation.mutate(cp.idCourse)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
+                  Assigned
+                </Button>
+              </DialogFooter>
+            </Dialog>
           </div>
-        </DialogBody>
-
-        <DialogFooter className="bg-gray-50 border-t px-6 py-4">
-          <Button
-            fullWidth
-            color="green"
-            onClick={() => assignMutation.mutate(selectedCourse)}
-          >
-            Assigned
-          </Button>
-        </DialogFooter>
-      </Dialog>
-    </div>
   </>
 };
 
@@ -264,7 +266,7 @@ const GetProfessors = () => {
   };
 
   const { data: courseProfessors = [] } = useQuery({
-    queryKey: ["courseProfessors"],
+    queryKey: ["teachingAssistantCourses"],
     queryFn: async () => {
       const token = localStorage.getItem("userToken");
       const { data } = await axios.get(
@@ -301,7 +303,7 @@ const GetProfessors = () => {
 
       const url = isEdit
         ? `https://timetableapi.runasp.net/api/Professors/${payload.id}`
-        : `https://timetableapi.runasp.net/api/Professors`;
+        : `https://timetableapi.runasp.net/api/Professors `;
 
       const method = isEdit ? axios.put : axios.post;
       const { data } = await method(url, payload, { headers });
@@ -330,7 +332,7 @@ const GetProfessors = () => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["professors"],
+    queryKey: ["teachingAssistants"],
     queryFn: async () => {
       const token = localStorage.getItem("userToken");
       const { data } = await axios.get(
@@ -390,7 +392,7 @@ const GetProfessors = () => {
       id: parseInt(professor.id, 10),
       name: professor.name.trim(),
       numberAssignedCourses: 1,
-      daysObject,
+      ...daysObject,
     };
 
     if (isEdit) {
@@ -403,11 +405,7 @@ const GetProfessors = () => {
       return;
     }
   };
-  const handleDelete = (id) => {
-    if (window.confirm("Are You Sure About Delete")) {
-      deleteMutation.mutate(id);
-    }
-  };
+
   const resetForm = () => {
     setProfessor({ id: "", name: "", availability: [] });
     setIsEdit(false);
@@ -434,7 +432,6 @@ const GetProfessors = () => {
       });
       setIsEdit(true);
     } else {
-      // تحضير بيانات POST للإضافة
       console.log(
         "POST Data template:",
         JSON.stringify(
@@ -505,51 +502,53 @@ const GetProfessors = () => {
 
       <div className="background-main-pages ">
         <Slidebar />
-
-        <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-4 sm:px-6 ">
+        <div className="max-w-screen-xl mx-auto rounded-md bg-slate-800 px-2 sm:px-5 ">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 p-4 gap-4">
-          
             <div className="w-full md:w-auto flex justify-between items-center order-1">
+              <a className="flex items-center text-sm md:text-2xl  font-semibold text-white">
+                <img
+                  className="rounded-md w-8 h-8 mr-2"
+                  src={imgLOGO}
+                  alt="logo"
+                />
+                NEXT Advisory
+              </a>
 
-<a className="flex items-center  text-sm md:text-2xl font-semibold text-white">
-  <img className="rounded-md w-8 h-8 mr-2" src={imgLOGO} alt="logo" />
-  NEXT Advisory
-</a>
-              {/* زر الإضافة على اليمين (للجوال فقط) */}
               <div className="md:hidden  order-2">
                 <Button
-                  className="text-xs py-3 px-2 rounded-lg active text-white "
+                  className="text-xs text-[9px] py-3  px-1  rounded-lg active  text-white "
                   onClick={() => handleOpen()}
                   variant="gradient"
                 >
-                  {isEdit ? "Modify Professor" : "Add Professor"}
-                  
+                  {isEdit
+                    ? "Modify Professor"
+                    : "Add Professor"}
+                   
                 </Button>
               </div>
             </div>
 
-            {/* حقل البحث (للجوال يأخذ كامل العرض) */}
             <div className="w-full md:flex-1 md:mx-4 order-last md:order-3">
               <input
                 type="text"
-                placeholder="🔍Search Professor Name.... "
+                placeholder="🔍Search Professor ...."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full p-2 border rounded bg-white text-gray-800"
               />
             </div>
 
-            {/* زر الإضافة للشاشات الكبيرة (يخفي على الجوال) */}
             <div className="hidden md:block order-4">
               <Button
                 onClick={() => handleOpen()}
-                className="text-xs py-3 px-6 rounded-lg active text-white"
+                className="text-xs  py-3 px-5 rounded-lg active text-white"
               >
-                {isEdit ? "Modify Professor" : "Add Professor"}
+                {isEdit
+                  ? "Modify Professor"
+                  : "Add Professor"}
               </Button>
             </div>
           </div>
-
           <Dialog
             size="sm"
             open={open}
@@ -558,7 +557,9 @@ const GetProfessors = () => {
           >
             <DialogHeader className="relative m-0 block bg-blue-800 text-white p-4 rounded-t-xl">
               <Typography variant="h4" className="text-white">
-                {isEdit ? "Modify Professor" : "Add New Professor"}
+                {isEdit
+                  ? "Modify Professor"
+                  : "Add New Professor"}
               </Typography>
               <IconButton
                 size="sm"
@@ -603,6 +604,7 @@ const GetProfessors = () => {
                         checked={professor.availability.includes(day)}
                         onChange={handleCheckboxChange}
                         name={day}
+                        required
                       />
                       <span className="text-gray-700">{day}</span>
                     </label>
@@ -617,7 +619,7 @@ const GetProfessors = () => {
                   !professor.name.trim() || professor.availability.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "active "
-                } text-white px-6 py-3 rounded-lg`}
+                } text-white px-5 py-3 rounded-lg`}
                 onClick={handleSubmit}
                 disabled={
                   !professor.name.trim() || professor.availability.length === 0
@@ -637,43 +639,43 @@ const GetProfessors = () => {
                         <tr>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-10  text-white uppercase "
+                            className="px-5 py-3 text-start text-xs  font-medium  text-white uppercase "
                           >
                             Name
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
+                            className="px-5 py-3 text-start text-xs  font-medium text-white uppercase "
                           >
                             Available Days
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
+                            className="px-5 py-3 text-start text-xs font-medium text-white uppercase "
                           >
                             Assigned Courses
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs  font-medium text-white uppercase "
+                            className="px-5 py-3 text-start text-xs font-medium text-white uppercase "
                           >
-                            Number Assigned Courses
+                            Number Of Assigned Courses
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-start text-xs font-medium text-white uppercase "
-                          >
-                            Action
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
+                            className="px-5 py-3 text-start text-xs font-medium text-white uppercase "
                           >
                             Action
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-end text-xs font-medium text-white uppercase "
+                            className="px-5 py-3 text-end text-xs font-medium text-white uppercase "
+                          >
+                            Action
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-5 py-3 text-end text-xs font-medium text-white uppercase "
                           >
                             Action
                           </th>
@@ -711,11 +713,11 @@ const GetProfessors = () => {
                           filteredProfessors.map((professor) => (
                             <Fragment key={professor.id}>
                               <tr key={professor.id} className="hover:bg-black">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                                <td className="px-5 py-4 whitespace-nowrap text-sm font-medium text-white">
                                   {professor.name}
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                <td className="px-5 py-4 whitespace-nowrap text-sm text-white">
                                   <ul className="list-disc pl-5 space-y-1">
                                     {Object.entries(dayMap)
                                       .filter(([_, key]) => professor[key])
@@ -727,7 +729,7 @@ const GetProfessors = () => {
                                   </ul>
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-smtext-gray-700">
+                                <td className="px-5 py-4 whitespace-nowrap text-smtext-gray-700">
                                   <div className="flex flex-wrap gap-2">
                                     {courseProfessors
                                       .filter(
@@ -743,12 +745,12 @@ const GetProfessors = () => {
                                       ))}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-white">
-                                  {"           "}
+                                <td className="px-5 py-4 whitespace-nowrap text-sm text-white">
+                                  {" "}
                                   {professor.numberAssignedCourses}
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                <td className="px-5 py-4 whitespace-nowrap text-end text-sm font-medium">
                                   <Button
                                     onClick={() => {
                                       setSelectedProfessor(professor);
@@ -756,12 +758,12 @@ const GetProfessors = () => {
                                     }}
                                     variant="gradient"
                                     size="sm"
-                                    className="btn-management w-full disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg bg-gray-900 shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none color-main text-white flex items-center gap-2"
+                                    className="btn-management w-full disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-5 rounded-lg bg-gray-900 shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none color-main text-white flex items-center gap-2"
                                   >
                                     Assigned Courses
                                   </Button>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                <td className="px-5 py-4 whitespace-nowrap text-end text-sm font-medium">
                                   <button
                                     type="button"
                                     onClick={() => handleOpen(professor)}
@@ -770,10 +772,10 @@ const GetProfessors = () => {
                                     Edit
                                   </button>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                <td className="px-5 py-4 whitespace-nowrap text-end text-sm font-medium">
                                   <button
                                     type="button"
-                                    className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-700 focus:outline-hidden focus:text-red-700 disabled:opacity-50 disabled:pointer-events-none"
+                                    className="inline-flex items-center gap-x-2 text-lg font-semibold rounded-lg border border-transparent text-red-600 hover:text-red-700 focus:outline-hidden focus:text-red-700 disabled:opacity-50 disabled:pointer-events-none "
                                     onClick={() => {
                                       setSelectedProfessorId(professor.id);
                                       setDeleteModalOpen(true);
@@ -793,7 +795,7 @@ const GetProfessors = () => {
               </div>
             </div>
           </Fragment>
-        
+          {/* بعد نهاية الجدول الرئيسي */}
           <Dialog
             open={manageOpen}
             handler={setManageOpen}

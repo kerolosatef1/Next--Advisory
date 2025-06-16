@@ -130,84 +130,52 @@ const WeeklyTimetable = () => {
   }, 500);
 }, [selectedYear, selectedGroup]);
 
-  const exportToWord = useCallback(() => {
-  if (!selectedYear || !selectedGroup || !tableRef.current) return;
-
-  toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
-
-  // إنشاء عنصر مؤقت
-  const tableElement = tableRef.current;
-  const tempElement = document.createElement('div');
-  tempElement.style.position = 'absolute';
-  tempElement.style.left = '-9999px';
-  tempElement.style.width = `${tableElement.scrollWidth}px`;
-  tempElement.appendChild(tableElement.cloneNode(true));
-  document.body.appendChild(tempElement);
-
-  html2canvas(tempElement, {
-    scale: 2,
-    width: tableElement.scrollWidth,
-    height: tableElement.scrollHeight,
-    onclone: (clonedDoc) => {
-      // تطبيق الأنماط الإضافية
-      const cells = clonedDoc.querySelectorAll('.bg-lecture, .bg-sections');
-      cells.forEach(cell => {
-        cell.style.padding = '12px';
-        cell.style.marginBottom = '8px';
-      });
-    },
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#ffffff'
-  }).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png');
-    
+  const exportToWord = () => {
     const header = `
-      <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:15px;">
-        <h2 style="color:#2d3748;margin:0;font-size:50px;">Academic Year: ${selectedYear}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;font-size:40px;">Group: ${selectedGroup}</h3>
+      <div style="text-align:center;padding:20px;border-bottom:2px solid #e2e8f0;">
+        <h2 style="color:#2d3748;margin:0;">Academic Year: ${selectedYear}</h2>
+        <h3 style="color:#4a5568;margin:5px 0 0;">Group: ${selectedGroup}</h3>
       </div>
     `;
-
+  
+    // إضافة الأنماط بشكل مباشر لكل عنصر
+    const tableHtml = tableRef.current.outerHTML
+      .replace(/bg-lecture/g, 'style="background-color:#3182ce;color:white;padding:8px;border-radius:4px;"')
+      .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;"')
+      .replace(/bg-days/g, 'style="background-color:#ef4444;color:white;"');
+  
     const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" 
             xmlns:w="urn:schemas-microsoft-com:office:word">
         <head>
           <meta charset="UTF-8">
-          <title>Weekly Timetable</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            .timetable-image { width: 100%; height: auto; }
-            .lecture-cell { padding: 12px !important; margin-bottom: 8px !important; }
+            table { 
+              border-collapse: collapse;
+              width: 100%;
+              font-family: Arial, sans-serif;
+            }
+            th, td {
+              border: 1px solid #cbd5e0;
+              padding: 12px;
+              text-align: center;
+            }
           </style>
         </head>
         <body>
           ${header}
-          <img src="${imgData}" class="timetable-image" alt="Timetable" />
+          ${tableHtml}
         </body>
       </html>
     `;
-
-    const blob = new Blob(['\ufeff', htmlContent], {
-      type: 'application/msword'
-    });
+  
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Timetable_${selectedYear}_${selectedGroup}.doc`;
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    toast.success('تم إنشاء ملف Word بنجاح');
-    
-    // تنظيف العنصر المؤقت
-    document.body.removeChild(tempElement);
-  }).catch((error) => {
-    toast.error('حدث خطأ أثناء إنشاء الملف');
-    console.error('Error generating Word:', error);
-    document.body.removeChild(tempElement);
-  });
-}, [selectedYear, selectedGroup]);
+  };
 
 
 const exportAllTablesToPDF = useCallback(async () => {
