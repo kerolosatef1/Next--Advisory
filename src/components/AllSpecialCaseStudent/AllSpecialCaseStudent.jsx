@@ -1,6 +1,10 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import axios from "axios";
-import { Input, Typography, Select, Option } from "@material-tailwind/react";
+import { Input, Typography, Select, Option,Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Button } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingAnimation from "../Loading/Loading";
@@ -15,7 +19,7 @@ const StudentTimetable = () => {
   const [loading, setLoading] = useState(true);
   const tableRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const daysOfWeek = useMemo(
     () => [
       { id: "1", name: "Saturday" },
@@ -171,7 +175,7 @@ const StudentTimetable = () => {
  const handlePrint = useCallback(() => {
   if (!selectedStudent || !tableRef.current) return;
 
-  toast.info('جاري إنشاء الملف...', { autoClose: 2000 });
+  
 
   // احصل على عنصر الجدول
   const tableElement = tableRef.current;
@@ -247,7 +251,7 @@ const StudentTimetable = () => {
     pdf.text(`ID: ${selectedStudent.studentId}`, pageWidth / 2, 15, { align: 'center' });
 
     pdf.save(`Timetable_${selectedStudent.studentName}_${selectedStudent.studentId}.pdf`);
-    toast.success('تم إنشاء الملف بنجاح');
+   
     
     // تنظيف العنصر المؤقت
     document.body.removeChild(tempElement);
@@ -257,11 +261,49 @@ const StudentTimetable = () => {
     document.body.removeChild(tempElement);
   });
 }, [selectedStudent]);
+const handleDeleteStudent = useCallback(async () => {
+  if (!selectedStudent) return;
 
+  try {
+    setLoading(true);
+    const token = localStorage.getItem("userToken");
+    if (!token) {
+      toast.error("يجب تسجيل الدخول أولاً");
+      return;
+    }
+
+    await axios.delete(
+      `https://timetableapi.runasp.net/api/Schedule/DeleteStudent/${selectedStudent.studentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    toast.success("Student timetable deleted successfully");
+    // Refresh the data after deletion
+    await fetchData();
+    setSelectedStudent(null);
+  } catch (error) {
+    toast.error("Failed to delete student timetable");
+    console.error("Delete error:", error);
+  } finally {
+    setLoading(false);
+    setDeleteDialogOpen(false);
+  }
+}, [selectedStudent, fetchData]);
+
+const openDeleteDialog = () => {
+  if (selectedStudent) {
+    setDeleteDialogOpen(true);
+  }
+};
 const exportToWord = useCallback(() => {
   if (!selectedStudent || !tableRef.current) return;
 
-  toast.info('جاري إنشاء ملف Word...', { autoClose: 2000 });
+  
 
   // تحديد أبعاد الجدول
   const table = tableRef.current;
@@ -326,7 +368,7 @@ const exportToWord = useCallback(() => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success('تم إنشاء ملف Word بنجاح');
+    
   }).catch((error) => {
     toast.error('حدث خطأ أثناء إنشاء الملف');
     console.error('Error generating Word:', error);
@@ -404,7 +446,40 @@ const exportToWord = useCallback(() => {
     );
   }
 
-  return (
+  return <>
+    {/* Delete Confirmation Dialog */}
+<Dialog
+  open={deleteDialogOpen}
+  handler={() => setDeleteDialogOpen(!deleteDialogOpen)}
+  animate={{
+    mount: { scale: 1, y: 0 },
+    unmount: { scale: 0.9, y: -100 },
+  }}
+>
+  <DialogHeader>Confirm Deletion</DialogHeader>
+  <DialogBody>
+    Are you sure you want to delete the timetable for {selectedStudent?.studentName} ID: {selectedStudent?.studentId} ?
+   
+  </DialogBody>
+  <DialogFooter>
+    <Button
+      variant="text"
+      color="gray"
+      onClick={() => setDeleteDialogOpen(false)}
+      className="mr-1"
+    >
+      <span>Cancel</span>
+    </Button>
+    <Button 
+      variant="gradient" 
+      color="red" 
+      onClick={handleDeleteStudent}
+      disabled={loading}
+    >
+      <span>{loading ? "Deleting..." : "Confirm Delete"}</span>
+    </Button>
+  </DialogFooter>
+</Dialog>
     
     <div className="background-main-pages">
       <Slidebar />
@@ -462,6 +537,16 @@ const exportToWord = useCallback(() => {
           >
             Export Excel
           </button>
+          <button
+  onClick={openDeleteDialog}
+  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+  disabled={!selectedStudent}
+>
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+  </svg>
+  Delete
+</button>
         </div>
 
         {selectedStudent && (
@@ -534,7 +619,7 @@ const exportToWord = useCallback(() => {
         )}
       </div>
     </div>
-  );
+  </>
 };
 
 export default StudentTimetable;

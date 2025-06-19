@@ -134,7 +134,7 @@ const WeeklyClassroomTimetable = () => {
   const exportToPDF = () => {
     if (!selectedClassroom || !tableRef.current) return;
 
-    toast.info("جاري إنشاء ملف PDF...", { autoClose: 2000 });
+  
 
     html2canvas(tableRef.current, {
       scale: 2,
@@ -165,7 +165,7 @@ const WeeklyClassroomTimetable = () => {
         });
 
         pdf.save(`Classroom_Timetable_${selectedClassroom}.pdf`);
-        toast.success("تم إنشاء ملف PDF بنجاح");
+        
       })
       .catch((error) => {
         toast.error("حدث خطأ أثناء إنشاء الملف");
@@ -177,7 +177,7 @@ const WeeklyClassroomTimetable = () => {
   const exportToWord = () => {
     if (!selectedClassroom || !tableRef.current) return;
 
-    toast.info("جاري إنشاء ملف Word...", { autoClose: 2000 });
+    
 
     html2canvas(tableRef.current, {
       scale: 2,
@@ -223,7 +223,7 @@ const WeeklyClassroomTimetable = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success("تم إنشاء ملف Word بنجاح");
+        
       })
       .catch((error) => {
         toast.error("حدث خطأ أثناء إنشاء الملف");

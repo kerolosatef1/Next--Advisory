@@ -12,48 +12,18 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Slidebar from "../Slidebar/Slidebar";
 
-const SpecialStudent = () => {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+const SameSpecialStudent = () => {
   const [formData, setFormData] = useState({
-    courses: [],
     studentName: "",
     studentId: "",
+    anotherStudentId: ""
   });
-  const [coursesList, setCoursesList] = useState([]);
-  const [showCoursesDropdown, setShowCoursesDropdown] = useState(false);
-  const dropdownRef = useRef(null);
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const token = localStorage.getItem("userToken");
-        const response = await axios.get(
-          "https://timetableapi.runasp.net/api/Courses",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setCoursesList(response.data);
-      } catch (error) {
-        toast.error("Failed to fetch courses");
-      }
-    };
-    fetchCourses();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowCoursesDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const [studentsList, setStudentsList] = useState([]);
+  const [showStudentsDropdown, setShowStudentsDropdown] = useState(false);
   const [organizedData, setOrganizedData] = useState({});
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef(null);
   const tableRef = useRef(null);
 
   const daysOfWeek = [
@@ -66,13 +36,41 @@ const SpecialStudent = () => {
     { id: "7", name: "Friday" },
   ];
 
+ useEffect(() => {
+  const fetchStudents = async () => {
+    try {
+      const token = localStorage.getItem("userToken");
+      const response = await axios.get(
+        "https://timetableapi.runasp.net/api/Schedule/AllUniqueStudent",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      // تصفية الطلاب المكررين
+      const uniqueStudents = response.data.flat().reduce((acc, current) => {
+        const x = acc.find(item => item.studentId === current.studentId);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
+      
+      setStudentsList(uniqueStudents);
+    } catch (error) {
+      toast.error("Failed to fetch students list");
+    }
+  };
+  fetchStudents();
+}, []);
+
   const normalizeTime = (time) => {
     if (!time) return "00:00-00:00";
-
     const cleanedTime = time.replace(/\s+/g, "").replace(/[^0-9:-]/g, "");
-
     const times = cleanedTime.split("-");
-
     if (times.length !== 2) return "00:00-00:00";
 
     const toMinutes = (t) => {
@@ -82,7 +80,7 @@ const SpecialStudent = () => {
     };
 
     const startMinutes = toMinutes(times[0]);
-    let endMinutes = toMinutes(times[1]);
+    const endMinutes = toMinutes(times[1]);
 
     const format = (minutes) => {
       const h = Math.floor(minutes / 60) % 24;
@@ -128,17 +126,18 @@ const SpecialStudent = () => {
     return timetableData;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSameTimetable = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const token = localStorage.getItem("userToken");
       const response = await axios.post(
-        "https://timetableapi.runasp.net/api/Schedule/GenerateUniqueStudent",
+        "https://timetableapi.runasp.net/api/Schedule/AddSameTimeTable",
         {
-          ...formData,
-          courseNames: formData.courses.map((c) => c.name), // تحويل المصفوفة إلى أسماء
+          studentName: formData.studentName,
+          studentId: formData.studentId,
+          anotherStudentId: formData.anotherStudentId
         },
         {
           headers: {
@@ -150,19 +149,20 @@ const SpecialStudent = () => {
 
       const organized = organizeData(response.data);
       setOrganizedData(organized);
-      toast.success("تم إنشاء الجدول بنجاح!");
+      toast.success("تم إنشاء الجدول المماثل بنجاح!");
     } catch (error) {
-      toast.error("فشل في إنشاء الجدول");
+      toast.error("فشل في إنشاء الجدول المماثل");
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const renderTable = () => {
-    if (!organizedData) return null;
+    if (!organizedData || Object.keys(organizedData).length === 0) return null;
 
     return (
-      <div className="max-w-screen-xl mx-auto rounded-md sm:px-6">
+      <div className="max-w-screen-xl mx-auto rounded-md sm:px-6 mt-8">
         <div className="overflow-x-auto" ref={tableRef}>
           <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
             <thead className="bg-gradient-to-r from-blue-500 to-blue-700">
@@ -228,15 +228,15 @@ const SpecialStudent = () => {
     );
   };
 
-  return (
+  return <>
     <div className="background-main-pages">
       <Slidebar />
-      <div className="max-w-screen-xl mx-auto rounded-md sm:px-6 p-4">
-        <Typography variant="h2" className="text-center mb-6">
-          Students outside the standard credit hour range
+      <div className="max-w-screen-xl mx-auto  rounded-md sm:px-6 p-4">
+        <Typography variant="h2" className="text-center mb-6 ">
+        Create a Similar TimeTable for a Student
         </Typography>
 
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-8">
+        <form onSubmit={handleSameTimetable} className="max-w-2xl mx-auto mb-8">
           <div className="flex flex-col gap-4">
             <Input
               label="Student Name"
@@ -257,42 +257,39 @@ const SpecialStudent = () => {
               required
             />
 
-            {/* استبدال حقل الإدخال النصي بالكود الجديد */}
             <div className="relative" ref={dropdownRef}>
               <div
                 className="w-full p-2 border rounded-lg bg-white cursor-pointer"
-                onClick={() => setShowCoursesDropdown(!showCoursesDropdown)}
+                onClick={() => setShowStudentsDropdown(!showStudentsDropdown)}
               >
-                <span className="text-red-400">
-                  {formData.courses.length > 0
-                    ? formData.courses.map((c) => c.name).join(", ")
-                    : "Select Courses"}
+                <span className="text-black">
+                  {formData.anotherStudentId 
+                    ? `ID : ${formData.anotherStudentId}`
+                    : "ID Another Student "}
                 </span>
               </div>
 
-              {showCoursesDropdown && (
+              {showStudentsDropdown && (
                 <div className="absolute z-50 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {coursesList.map((course) => (
+                  {studentsList.map((student, index) => (
                     <div
-                      key={course.id}
-                      className={`p-3  cursor-pointer ${
-                        formData.courses.some((c) => c.id === course.id)
+                      key={`${student.studentId}-${index}`}
+                      className={`p-3 cursor-pointer ${
+                        formData.anotherStudentId === student.studentId
                           ? "bg-blue-400"
-                          : ""
+                          : "hover:bg-gray-100"
                       }`}
                       onClick={() => {
-                        const exists = formData.courses.some(
-                          (c) => c.id === course.id
-                        );
-                        setFormData((prev) => ({
-                          ...prev,
-                          courses: exists
-                            ? prev.courses.filter((c) => c.id !== course.id)
-                            : [...prev.courses, course],
-                        }));
+                        setFormData({
+                          ...formData,
+                          anotherStudentId: student.studentId
+                        });
+                        setShowStudentsDropdown(false);
                       }}
                     >
-                      <span className="text-gray-800">{course.name}</span>
+                      <span className="text-gray-800">
+                        {student.studentName} - {student.studentId}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -300,7 +297,7 @@ const SpecialStudent = () => {
             </div>
 
             <Button type="submit" className="w-full active" disabled={loading}>
-              {loading ? "Generating Timetable..." : "Generate Timetable"}
+              {loading ? "Generating Timetable..." : "Genrate TimeTable "}
             </Button>
           </div>
         </form>
@@ -308,7 +305,7 @@ const SpecialStudent = () => {
         {renderTable()}
       </div>
     </div>
-  );
+  </>
 };
 
-export default SpecialStudent;
+export default SameSpecialStudent;

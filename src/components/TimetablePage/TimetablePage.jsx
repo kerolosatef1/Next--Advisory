@@ -32,7 +32,6 @@ const WeeklyTimetable = () => {
   const handlePrint = useCallback(() => {
   if (!selectedYear || !selectedGroup || !tableRef.current) return;
 
-  toast.info('جاري إنشاء ملف PDF...', { autoClose: 2000 });
 
   // إنشاء عنصر مؤقت لاحتواء الجدول
   const table = tableRef.current;
@@ -118,7 +117,7 @@ const WeeklyTimetable = () => {
       pdf.text(`Group: ${selectedGroup}`, pageWidth / 2, 16, { align: 'center' });
 
       pdf.save(`Timetable_${selectedYear}_${selectedGroup}.pdf`);
-      toast.success('تم إنشاء ملف PDF بنجاح');
+   
       
       // تنظيف العنصر المؤقت
       document.body.removeChild(tempDiv);
@@ -181,7 +180,6 @@ const WeeklyTimetable = () => {
 const exportAllTablesToPDF = useCallback(async () => {
   if (!organizedData || Object.keys(organizedData).length === 0) return;
 
-  toast.info('جاري إنشاء ملفات PDF لجميع الجداول...', { autoClose: false });
 
   try {
     // إنشاء مجلد ZIP لحفظ جميع الملفات (اختياري)
@@ -192,9 +190,7 @@ const exportAllTablesToPDF = useCallback(async () => {
     for (const year of Object.keys(organizedData)) {
       for (const group of Object.keys(organizedData[year])) {
         // تحديث حالة التحميل
-        toast.update(toastId, {
-          render: `جاري إنشاء PDF للسنة ${year} والمجموعة ${group}...`
-        });
+       
 
         // إنشاء عنصر مؤقت للجدول الحالي
         const tempDiv = document.createElement('div');
@@ -318,9 +314,8 @@ const exportAllTablesToPDF = useCallback(async () => {
     const zipContent = await zip.generateAsync({ type: 'blob' });
     saveAs(zipContent, 'all_timetables.zip');
 
-    toast.success('تم إنشاء جميع ملفات PDF بنجاح');
   } catch (error) {
-    toast.error('حدث خطأ أثناء إنشاء الملفات');
+    
     console.error('Error generating all PDFs:', error);
   }
 }, [organizedData, timeSlots, daysOfWeek]);

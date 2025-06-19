@@ -215,6 +215,13 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
+                    <button onClick={() => navigate('/same-special-student')}>Add Similar TimeTable</button>
+
+                  </ListItem>
+                    <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
                     <button onClick={() => navigate('/all-special-student')}>All Special Student</button>
 
                   </ListItem>

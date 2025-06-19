@@ -66,7 +66,7 @@ const ProfessorTimetable = () => {
         });
 
         pdf.save(`Professor_Timetable_${selectedProfessor}.pdf`);
-        toast.success("PDF generated successfully");
+        
       })
       .catch((error) => {
         toast.error("Error generating PDF");
@@ -123,7 +123,7 @@ const ProfessorTimetable = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success("Word document generated successfully");
+    
       })
       .catch((error) => {
         toast.error("Error generating Word document");

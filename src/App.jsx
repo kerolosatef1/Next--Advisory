@@ -40,6 +40,7 @@ import HallSchedulePage from './components/Viewhallschedule/Viewhallschedule';
 import ProfessorSchedulePage from './components/Viewprofessorschedule/Viewprofessorschedule';
 import SpecialStudentSchedulePage from './components/Viewspecialstudentschedule/Viewspecialstudentschedule';
 import Learnbackend from './components/Leranbackend/Leranbackend';
+import SameSpecialStudent from './components/SameSpecialStudent/SameSpecialStudent';
 
 let query=new QueryClient({
   defaultOptions : {
@@ -70,6 +71,7 @@ function App() {
       {path:'hall-schedule',element:<ProtectedRouting><ClassroomTimetable/></ProtectedRouting>},
       {path:'professor-schedule',element:<ProtectedRouting><ProfessorTimetable/></ProtectedRouting>},
       {path:'special-student',element:<ProtectedRouting><SpecialStudent/></ProtectedRouting>},
+      {path:'same-similar-timetable',element:<ProtectedRouting><SameSpecialStudent/></ProtectedRouting>},
       {path:'all-special-student',element:<ProtectedRouting><StudentTimetable/></ProtectedRouting>},
       {path:'learn-more',element:<LearnMore/>},
       {path:'learn/backend',element:<Learnbackend/>},
