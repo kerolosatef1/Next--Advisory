@@ -42,6 +42,7 @@ import SpecialStudentSchedulePage from './components/Viewspecialstudentschedule/
 import Learnbackend from './components/Leranbackend/Leranbackend';
 import SameSpecialStudent from './components/SameSpecialStudent/SameSpecialStudent';
 import ProfessorAnalysis from './components/AnalysisPagee/AnalysisPagee';
+import TeachingAssistantAnalysis from './components/AnalysisTeachingAssistant/AnalysisTeachingAssistant';
 
 
 let query=new QueryClient({
@@ -76,6 +77,8 @@ function App() {
       {path:'same-similar-timetable',element:<ProtectedRouting><SameSpecialStudent/></ProtectedRouting>},
       {path:'all-special-student',element:<ProtectedRouting><StudentTimetable/></ProtectedRouting>},
       {path:'analysis-professor',element:<ProtectedRouting><ProfessorAnalysis/></ProtectedRouting>},
+      {path:'analysis-teachingassistant',element:<ProtectedRouting><TeachingAssistantAnalysis/></ProtectedRouting>},
+
 
 
 
