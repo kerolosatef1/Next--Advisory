@@ -245,7 +245,7 @@ const Slidebar = () => {
                   className="border-b-0 p-3"
                 >
                   <ListItemPrefix>
-                    <CircleStackIcon className="h-5 w-5" />
+                    <PresentationChartBarIcon className="h-5 w-5" />
                   </ListItemPrefix>
                   <Typography color="blue-gray" className="mr-auto font-normal">
                    Analysis
@@ -260,7 +260,6 @@ const Slidebar = () => {
                     </ListItemPrefix>
                     <button onClick={() => navigate('/analysis-professor')}>Professors Analysis</button>
                   </ListItem>
-                 
                 </List>
               </AccordionBody>
             </Accordion>

@@ -14,10 +14,6 @@ const ProfessorAnalysis = () => {
   const [professors, setProfessors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-const timeSlotsData = professors.map(prof => 
-    Object.values(prof.eachTimeSlotNo).reduce((sum, count) => sum + count, 0)
-  );
-
   const [timeSlotColors, setTimeSlotColors] = useState({});
 
   useEffect(() => {
@@ -72,8 +68,7 @@ const timeSlotsData = professors.map(prof =>
     };
 
     fetchProfessorData();
-  }, [])
-  
+  }, []);
 
   // تحضير بيانات الرسم البياني للأساتذة
   const prepareProfessorChartData = () => {
@@ -84,24 +79,42 @@ const timeSlotsData = professors.map(prof =>
     return {
       chartOptions: {
         chart: {
-          type: "column",
+          type: "bar",
+          height: 2400,
+          
         },
         title: {
           text: "Professor Teaching Statistics",
+          style: {
+            fontSize: '24px'
+          }
         },
         xAxis: {
           categories: categories,
           crosshair: true,
+          labels: {
+            style: {
+              fontSize: '14px'
+            }
+          }
         },
         yAxis: {
           min: 0,
           title: {
             text: "Count",
+            style: {
+              fontSize: '15px'
+            }
           },
+          labels: {
+            style: {
+              fontSize: '14px'
+            }
+          }
         },
         tooltip: {
           headerFormat:
-            '<span style="font-size:10px">{point.key}</span><table>',
+            '<span style="font-size:14px">{point.key}</span><table>',
           pointFormat:
             '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
             '<td style="padding:0"><b>{point.y}</b></td></tr>',
@@ -110,9 +123,15 @@ const timeSlotsData = professors.map(prof =>
           useHTML: true,
         },
         plotOptions: {
-          column: {
+          bar: {
             pointPadding: 0.2,
             borderWidth: 0,
+            dataLabels: {
+              enabled: true,
+              style: {
+                fontSize: '14px'
+              }
+            }
           },
         },
         series: [
@@ -152,27 +171,47 @@ const timeSlotsData = professors.map(prof =>
       chartOptions: {
         chart: {
           type: "bar",
+          height: 400
         },
         title: {
           text: "Top Teaching Time Slots",
+          style: {
+            fontSize: '24px'
+          }
         },
         xAxis: {
           categories: sortedTimeSlots.map((item) => item[0]),
           title: {
             text: null,
           },
+          labels: {
+            style: {
+              fontSize: '14px'
+            }
+          }
         },
         yAxis: {
           min: 0,
           title: {
             text: "Lecture Count",
             align: "high",
+            style: {
+              fontSize: '16px'
+            }
           },
+          labels: {
+            style: {
+              fontSize: '14px'
+            }
+          }
         },
         plotOptions: {
           bar: {
             dataLabels: {
               enabled: true,
+              style: {
+                fontSize: '14px'
+              }
             },
           },
         },
@@ -212,139 +251,115 @@ const timeSlotsData = professors.map(prof =>
   return (
     <div className="background-main-pages">
       <Slidebar />
-      <div className="container mx-auto px-4 py-8 ">
+      <div className="container  mx-auto sm:px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
           Professor Teaching Analysis
         </h1>
+        {/* Full-width Professor Teaching Statistics chart */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <HighchartsReact
+            highcharts={Highcharts}
+            options={professorChartData.chartOptions}
+          />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={professorChartData.chartOptions}
-            />
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
+        {/* Time Slot section below */}
+        <div className=" flex flex-col   gap-8 mb-8">
+          {/* Time Slots chart - takes 2/3 width */}
+          <div className="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
             <HighchartsReact
               highcharts={Highcharts}
               options={timeSlotChartData.chartOptions}
             />
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">
-              Detailed Professor Statistics
-            </h2>
-            
-            {/* Time Slot Color Legend */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-3">Time Slot Colors:</h3>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(timeSlotColors).map(([timeSlot, color]) => (
-                  <div 
-                    key={timeSlot} 
-                    className="flex items-center px-3 py-1 rounded-full text-xs"
-                    style={{ backgroundColor: color, color: "white" }}
-                  >
-                    {timeSlot}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Professor
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Lectures
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Teaching Days
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Time Slots Distribution
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {professors.map((professor, index) => {
-                    // Sort time slots by count (descending)
-                    const sortedTimeSlots = Object.entries(professor.eachTimeSlotNo)
-                      .sort((a, b) => b[1] - a[1]);
-                    
-                    // Calculate total time slots for this professor
-                    const totalSlots = sortedTimeSlots.reduce(
-                      (sum, [_, count]) => sum + count, 0
-                    );
-
-                    return (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {professor.professorName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {professor.totalLectural}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {professor.numberDays}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          <div className="flex flex-col">
-                            {/* Time slots bar visualization */}
-                            <div 
-                              className="flex h-6 rounded overflow-hidden mb-2"
-                              title={`Time slots: ${sortedTimeSlots.map(([time, count]) => `${time} (${count})`).join(', ')}`}
-                            >
-                              {sortedTimeSlots.map(([time, count]) => (
-                                <div
-                                  key={time}
-                                  className="flex items-center justify-center relative group"
-                                  style={{
-                                    width: `${(count / totalSlots) * 100}%`,
-                                    backgroundColor: timeSlotColors[time],
-                                  }}
-                                >
-                                  <span className="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {time}: {count}
-                                  </span>
-                                  <div className="absolute inset-0 group-hover:bg-black group-hover:bg-opacity-20 transition-all"></div>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            {/* Detailed time slots list */}
-                            <div className="flex flex-wrap gap-1">
-                              {sortedTimeSlots.map(([time, count]) => (
-                                <div
-                                  key={time}
-                                  className="flex items-center px-2 py-1 rounded-md text-xs relative group"
-                                  style={{
-                                    backgroundColor: timeSlotColors[time],
-                                    color: "white",
-                                  }}
-                                  title={`${time}: ${count} lectures`}
-                                >
-                                  <span className="font-semibold">{time}</span>
-                                  <span className="ml-1 opacity-70">({count})</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {/* Time Slot Color Legend - takes 1/3 width */}
+          <div className="bg-white  p-8  rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Time Slot Colors</h2>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(timeSlotColors).map(([timeSlot, color]) => (
+                <div 
+                  key={timeSlot} 
+                  className="flex items-center px-3 py-2 rounded-md text-sm"
+                  style={{ backgroundColor: color, color: "white" }}
+                >
+                  {timeSlot}
+                </div>
+              ))}
             </div>
           </div>
-        
+        </div>
+
+        <div className="bg-white  p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-6">
+            Detailed Professor Statistics
+          </h2>
+          
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                    Professor
+                  </th>
+                  
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                    Time Slots Distribution
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white  divide-gray-200">
+                {professors.map((professor, index) => {
+                  // Sort time slots by count (descending)
+                  const sortedTimeSlots = Object.entries(professor.eachTimeSlotNo)
+                    .sort((a, b) => b[1] - a[1]);
+                  
+                  // Calculate total time slots for this professor
+                  const totalSlots = sortedTimeSlots.reduce(
+                    (sum, [_, count]) => sum + count, 0
+                  );
+
+                  return (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900">
+                        {professor.professorName}
+                      </td>
+                      
+                     
+                      <td className="px-6 py-4 text-lg text-gray-500">
+                        <div className="flex flex-col">
+                          {/* Time slots bar visualization */}
+                          <div 
+                            className="flex h-8 rounded overflow-hidden"
+                            title={`Time slots: ${sortedTimeSlots.map(([time, count]) => `${time} (${count})`).join(', ')}`}
+                          >
+                            {sortedTimeSlots.map(([time, count]) => (
+                              <div
+                                key={time}
+                                className="flex items-center justify-center relative group"
+                                style={{
+                                  width: `${(count / totalSlots) * 100}%`,
+                                  backgroundColor: timeSlotColors[time],
+                                }}
+                              >
+                                <span className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                   {count}
+                                </span>
+                               
+                              </div>
+                            ))}
+                          </div>
+                          
+                          
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
