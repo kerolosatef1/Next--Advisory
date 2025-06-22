@@ -259,7 +259,7 @@ const TeachingAssistantAnalysis = () => {
       <Slidebar />
       <div className="container  mx-auto sm:px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Teaching_Analysis
+          TeachingAssistant_Analysis
         </h1>
         {/* Full-width Professor Teaching Statistics chart */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
