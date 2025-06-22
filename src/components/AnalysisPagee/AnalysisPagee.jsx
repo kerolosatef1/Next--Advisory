@@ -75,12 +75,13 @@ const ProfessorAnalysis = () => {
     const categories = professors.map((prof) => prof.professorName);
     const lectureData = professors.map((prof) => prof.totalLectural);
     const daysData = professors.map((prof) => prof.numberDays);
+ const dynamicHeight = Math.max(400, categories.length * 150);
 
     return {
       chartOptions: {
         chart: {
           type: "bar",
-          height: 2400,
+          height:  dynamicHeight
           
         },
         title: {

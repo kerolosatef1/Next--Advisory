@@ -43,6 +43,7 @@ import Learnbackend from './components/Leranbackend/Leranbackend';
 import SameSpecialStudent from './components/SameSpecialStudent/SameSpecialStudent';
 import ProfessorAnalysis from './components/AnalysisPagee/AnalysisPagee';
 import TeachingAssistantAnalysis from './components/AnalysisTeachingAssistant/AnalysisTeachingAssistant';
+import ClassroomAnalysis from './components/LectureClassRoom/LectureClassRoom';
 
 
 let query=new QueryClient({
@@ -78,6 +79,8 @@ function App() {
       {path:'all-special-student',element:<ProtectedRouting><StudentTimetable/></ProtectedRouting>},
       {path:'analysis-professor',element:<ProtectedRouting><ProfessorAnalysis/></ProtectedRouting>},
       {path:'analysis-teachingassistant',element:<ProtectedRouting><TeachingAssistantAnalysis/></ProtectedRouting>},
+      {path:'analysis-lecture-halls',element:<ProtectedRouting><ClassroomAnalysis/></ProtectedRouting>},
+
 
 
 

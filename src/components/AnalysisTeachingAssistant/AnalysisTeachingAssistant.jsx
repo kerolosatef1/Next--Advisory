@@ -75,12 +75,12 @@ const TeachingAssistantAnalysis = () => {
     const categories = professors.map((prof) => prof.professorName);
     const lectureData = professors.map((prof) => prof.totalLectural);
     const daysData = professors.map((prof) => prof.numberDays);
-
+ const dynamicHeight = Math.max(400, categories.length * 150);
     return {
       chartOptions: {
         chart: {
           type: "bar",
-          height: 2400,
+          height: dynamicHeight
         
           
         },
@@ -167,12 +167,17 @@ const TeachingAssistantAnalysis = () => {
     const sortedTimeSlots = Object.entries(timeSlots)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10); // نأخذ أفضل 10 فترات
+      const categories = professors.map((prof) => prof.professorName || "Unknown");
+  const lectureData = professors.map((prof) => prof.totalLectural || 0);
+  const daysData = professors.map((prof) => prof.numberDays || 0);
+ const dynamicHeight = Math.max(400, categories.length * 15);
+
 
     return {
       chartOptions: {
         chart: {
           type: "bar",
-          height: 400
+          height: dynamicHeight
         },
         title: {
           text: "Top Teaching Time Slots",
@@ -254,7 +259,7 @@ const TeachingAssistantAnalysis = () => {
       <Slidebar />
       <div className="container  mx-auto sm:px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Teaching_Assistant Analysis
+          Teaching_Analysis
         </h1>
         {/* Full-width Professor Teaching Statistics chart */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">

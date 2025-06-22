@@ -83,6 +83,7 @@ const Slidebar = () => {
           shadow={false}
           className="h-[calc(100vh-2rem)] text-white w-full p-4 color-mainnn"
         >
+        <button onClick={() => navigate('/')}>
           <div className="mb-2  flex items-center gap-4 p-4">
             <img
               src={imgLOGO}
@@ -93,6 +94,7 @@ const Slidebar = () => {
               Next Advisory
             </Typography>
           </div>
+          </button>  
          
           <List>
             <Accordion
@@ -269,6 +271,12 @@ const Slidebar = () => {
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
                     <button onClick={() => navigate('/analysis-teachingassistant')}>Teaching Assistant Analysis</button>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/analysis-lecture-halls')}>Lecture Halls anylsis</button>
                   </ListItem>
                 </List>
               </AccordionBody>
