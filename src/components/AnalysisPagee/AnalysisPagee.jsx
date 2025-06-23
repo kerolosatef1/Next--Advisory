@@ -12,6 +12,7 @@ import LoadingAnimation from "../Loading/Loading";
 
 const ProfessorAnalysis = () => {
   const [professors, setProfessors] = useState([]);
+  const [unassignedProfessors, setUnassignedProfessors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeSlotColors, setTimeSlotColors] = useState({});
@@ -24,23 +25,35 @@ const ProfessorAnalysis = () => {
           throw new Error("No authentication token found");
         }
 
-        const response = await axios.get(
-          "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/Professor",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const [professorsResponse, unassignedResponse] = await Promise.all([
+          axios.get(
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/Professor",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          ),
+          axios.get(
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/ProfessorNotMapped",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+        ]);
 
-        setProfessors(response.data);
+        setProfessors(professorsResponse.data);
+        setUnassignedProfessors(unassignedResponse.data);
         
         // Generate unique colors for each time slot
         const colors = {};
         const allTimeSlots = new Set();
         
-        response.data.forEach(professor => {
+        professorsResponse.data.forEach(professor => {
           Object.keys(professor.eachTimeSlotNo).forEach(timeSlot => {
             allTimeSlots.add(timeSlot);
           });
@@ -75,7 +88,8 @@ const ProfessorAnalysis = () => {
     const categories = professors.map((prof) => prof.professorName);
     const lectureData = professors.map((prof) => prof.totalLectural);
     const daysData = professors.map((prof) => prof.numberDays);
- const dynamicHeight = Math.max(400, categories.length * 150);
+    
+    const dynamicHeight = Math.max(400, categories.length * 80);
 
     return {
       chartOptions: {
@@ -252,10 +266,11 @@ const ProfessorAnalysis = () => {
   return (
     <div className="background-main-pages">
       <Slidebar />
-      <div className="container  mx-auto sm:px-4 py-8">
+      <div className="container mx-auto sm:px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
           Professor Teaching Analysis
         </h1>
+        
         {/* Full-width Professor Teaching Statistics chart */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <HighchartsReact
@@ -265,7 +280,7 @@ const ProfessorAnalysis = () => {
         </div>
 
         {/* Time Slot section below */}
-        <div className=" flex flex-col   gap-8 mb-8">
+        <div className="flex flex-col gap-8 mb-8">
           {/* Time Slots chart - takes 2/3 width */}
           <div className="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
             <HighchartsReact
@@ -275,7 +290,7 @@ const ProfessorAnalysis = () => {
           </div>
 
           {/* Time Slot Color Legend - takes 1/3 width */}
-          <div className="bg-white  p-8  rounded-lg shadow-md">
+          <div className="bg-white p-8 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Time Slot Colors</h2>
             <div className="flex flex-wrap gap-2">
               {Object.entries(timeSlotColors).map(([timeSlot, color]) => (
@@ -291,7 +306,8 @@ const ProfessorAnalysis = () => {
           </div>
         </div>
 
-        <div className="bg-white  p-6 rounded-lg shadow-md">
+        {/* Detailed Professor Statistics */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-2xl font-semibold mb-6">
             Detailed Professor Statistics
           </h2>
@@ -309,7 +325,7 @@ const ProfessorAnalysis = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white  divide-gray-200">
+              <tbody className="bg-white divide-gray-200">
                 {professors.map((professor, index) => {
                   // Sort time slots by count (descending)
                   const sortedTimeSlots = Object.entries(professor.eachTimeSlotNo)
@@ -326,7 +342,6 @@ const ProfessorAnalysis = () => {
                         {professor.professorName}
                       </td>
                       
-                     
                       <td className="px-6 py-4 text-lg text-gray-500">
                         <div className="flex flex-col">
                           {/* Time slots bar visualization */}
@@ -346,12 +361,9 @@ const ProfessorAnalysis = () => {
                                 <span className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity">
                                    {count}
                                 </span>
-                               
                               </div>
                             ))}
                           </div>
-                          
-                          
                         </div>
                       </td>
                     </tr>
@@ -359,6 +371,23 @@ const ProfessorAnalysis = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Unassigned Professors Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-6 text-center">
+            Professors Without Assigned Lectures ({unassignedProfessors.length})
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {unassignedProfessors.map((professor, index) => (
+              <div 
+                key={index} 
+                className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center"
+              >
+                <span className="font-medium text-gray-700">{professor}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

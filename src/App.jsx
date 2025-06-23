@@ -44,6 +44,12 @@ import SameSpecialStudent from './components/SameSpecialStudent/SameSpecialStude
 import ProfessorAnalysis from './components/AnalysisPagee/AnalysisPagee';
 import TeachingAssistantAnalysis from './components/AnalysisTeachingAssistant/AnalysisTeachingAssistant';
 import ClassroomAnalysis from './components/LectureClassRoom/LectureClassRoom';
+import SectionClassroomAnalysis from './components/SectionClassRoomchart/SectionClassRoomchart';
+import TimeAnalysisDashboard from './components/TimeslotandDaychart/TimeslotandDaychart';
+import WeekDaysPieChart from './components/SectionClassRoomchart/SectionClassRoomchart';
+import TimeslotsandDay from './components/LectureClassRoom/LectureClassRoom';
+import TimeSlotAndDaysChart from './components/TimeslotandDaychart/TimeslotandDaychart';
+import ChartsComparisonPage from './components/TimeslotandDaychart/TimeslotandDaychart';
 
 
 let query=new QueryClient({
@@ -80,12 +86,11 @@ function App() {
       {path:'analysis-professor',element:<ProtectedRouting><ProfessorAnalysis/></ProtectedRouting>},
       {path:'analysis-teachingassistant',element:<ProtectedRouting><TeachingAssistantAnalysis/></ProtectedRouting>},
       {path:'analysis-lecture-halls',element:<ProtectedRouting><ClassroomAnalysis/></ProtectedRouting>},
+      {path:'analysis-section-halls',element:<ProtectedRouting><SectionClassroomAnalysis/></ProtectedRouting>},
+      {path:'analysis-time-periods',element:<ProtectedRouting><TimeAnalysisDashboard/></ProtectedRouting>},
 
 
 
-
-
-      
 
       {path:'learn-more',element:<LearnMore/>},
       {path:'learn/backend',element:<Learnbackend/>},

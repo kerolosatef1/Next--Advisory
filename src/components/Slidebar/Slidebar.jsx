@@ -1,9 +1,6 @@
 import React, { useContext } from 'react'
-
 import imgLOGO from '../../assets/imagelogo.jpeg'
-
 import { useNavigate } from "react-router-dom";
-
 import {
   IconButton,
   Typography,
@@ -31,7 +28,11 @@ import {
   AcademicCapIcon,
   CalendarDateRangeIcon,
   AtSymbolIcon,
-  CircleStackIcon
+  CircleStackIcon,
+  UserGroupIcon,
+  ClipboardDocumentCheckIcon,
+  PencilSquareIcon,
+  TableCellsIcon
   
 } from "@heroicons/react/24/solid";
 import {
@@ -42,6 +43,7 @@ import {
   Bars3Icon,
   
   XMarkIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from 'react-router-dom';
 
@@ -114,7 +116,7 @@ const Slidebar = () => {
                   className="border-b-0 p-3"
                 >
                   <ListItemPrefix>
-                    <CircleStackIcon className="h-5 w-5" />
+                    <ClipboardDocumentCheckIcon className="h-5 w-5" />
                   </ListItemPrefix>
                   <Typography color="blue-gray" className="mr-auto font-normal">
                     Data Entry
@@ -206,6 +208,37 @@ const Slidebar = () => {
                     <button onClick={() => navigate('/professor-schedule')}>Professor Schedule</button>
 
                   </ListItem>
+                  
+                </List>
+              </AccordionBody>
+            </Accordion>
+              <Accordion
+              open={open === 3}
+              icon={
+                <ChevronDownIcon
+                  strokeWidth={2.5}
+                  className={`mx-auto h-4 w-4 transition-transform ${
+                    open === 2 ? "rotate-180" : ""
+                  }`}
+                />
+              }
+            >
+              <ListItem className="p-0" selected={open === 3}>
+                <AccordionHeader
+                  onClick={() => handleOpen(3)}
+                  className="border-b-0 p-3"
+                >
+                  <ListItemPrefix>
+                    <UserGroupIcon className="h-5 w-5" />
+                  </ListItemPrefix>
+                  <Typography color="blue-gray" className="mr-auto font-normal">
+                    Special Student
+                  </Typography>
+                </AccordionHeader>
+              </ListItem>
+              <AccordionBody className="py-1">
+                <List className="p-0">
+                  
                     <ListItem>
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
@@ -231,7 +264,7 @@ const Slidebar = () => {
               </AccordionBody>
             </Accordion>
              <Accordion
-              open={open === 3}
+              open={open === 4}
               icon={
                 <ChevronDownIcon
                   strokeWidth={2.5}
@@ -241,9 +274,9 @@ const Slidebar = () => {
                 />
               }
             >
-              <ListItem className="p-0" selected={open === 1}>
+              <ListItem className="p-0" selected={open === 4}>
                 <AccordionHeader
-                  onClick={() => handleOpen(3)}
+                  onClick={() => handleOpen(4)}
                   className="border-b-0 p-3"
                 >
                   <ListItemPrefix>
@@ -276,7 +309,19 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    <button onClick={() => navigate('/analysis-lecture-halls')}>Lecture Halls anylsis</button>
+                    <button onClick={() => navigate('/analysis-lecture-halls')}>Lecture Halls analysis</button>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/analysis-section-halls')}>Section Halls analysis</button>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemPrefix>
+                      <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                    </ListItemPrefix>
+                    <button onClick={() => navigate('/analysis-time-periods')}>Time Periods analysis</button>
                   </ListItem>
                 </List>
               </AccordionBody>

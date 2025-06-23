@@ -11,37 +11,50 @@ import Slidebar from "../Slidebar/Slidebar";
 import LoadingAnimation from "../Loading/Loading";
 
 const TeachingAssistantAnalysis = () => {
-  const [professors, setProfessors] = useState([]);
+  const [teachingAssistants, setTeachingAssistants] = useState([]);
+  const [unassignedAssistants, setUnassignedAssistants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeSlotColors, setTimeSlotColors] = useState({});
 
   useEffect(() => {
-    const fetchProfessorData = async () => {
+    const fetchTeachingAssistantData = async () => {
       try {
         const token = localStorage.getItem("userToken");
         if (!token) {
           throw new Error("No authentication token found");
         }
 
-        const response = await axios.get(
-          "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/TeachingAssistant",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const [assistantsResponse, unassignedResponse] = await Promise.all([
+          axios.get(
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/TeachingAssistant",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          ),
+          axios.get(
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/TeachingAssistantNotMapped",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+        ]);
 
-        setProfessors(response.data);
+        setTeachingAssistants(assistantsResponse.data);
+        setUnassignedAssistants(unassignedResponse.data);
         
         // Generate unique colors for each time slot
         const colors = {};
         const allTimeSlots = new Set();
         
-        response.data.forEach(professor => {
-          Object.keys(professor.eachTimeSlotNo).forEach(timeSlot => {
+        assistantsResponse.data.forEach(assistant => {
+          Object.keys(assistant.eachTimeSlotNo).forEach(timeSlot => {
             allTimeSlots.add(timeSlot);
           });
         });
@@ -67,25 +80,24 @@ const TeachingAssistantAnalysis = () => {
       }
     };
 
-    fetchProfessorData();
+    fetchTeachingAssistantData();
   }, []);
 
-  // تحضير بيانات الرسم البياني للأساتذة
-  const prepareProfessorChartData = () => {
-    const categories = professors.map((prof) => prof.professorName);
-    const lectureData = professors.map((prof) => prof.totalLectural);
-    const daysData = professors.map((prof) => prof.numberDays);
- const dynamicHeight = Math.max(400, categories.length * 150);
+  const prepareAssistantChartData = () => {
+    const categories = teachingAssistants.map((ta) => ta.professorName);
+    const lectureData = teachingAssistants.map((ta) => ta.totalLectural);
+    const daysData = teachingAssistants.map((ta) => ta.numberDays);
+    
+    const dynamicHeight = Math.max(400, categories.length * 80);
+
     return {
       chartOptions: {
         chart: {
           type: "bar",
           height: dynamicHeight
-        
-          
         },
         title: {
-          text: "Professor Teaching Statistics",
+          text: "Teaching Assistant Statistics",
           style: {
             fontSize: '24px'
           }
@@ -114,8 +126,7 @@ const TeachingAssistantAnalysis = () => {
           }
         },
         tooltip: {
-          headerFormat:
-            '<span style="font-size:14px">{point.key}</span><table>',
+          headerFormat: '<span style="font-size:14px">{point.key}</span><table>',
           pointFormat:
             '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
             '<td style="padding:0"><b>{point.y}</b></td></tr>',
@@ -154,30 +165,24 @@ const TeachingAssistantAnalysis = () => {
     };
   };
 
-  // تحضير بيانات الرسم البياني للفترات الزمنية
   const prepareTimeSlotChartData = () => {
     const timeSlots = {};
 
-    professors.forEach((prof) => {
-      Object.entries(prof.eachTimeSlotNo).forEach(([timeSlot, count]) => {
+    teachingAssistants.forEach((ta) => {
+      Object.entries(ta.eachTimeSlotNo).forEach(([timeSlot, count]) => {
         timeSlots[timeSlot] = (timeSlots[timeSlot] || 0) + count;
       });
     });
 
     const sortedTimeSlots = Object.entries(timeSlots)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10); // نأخذ أفضل 10 فترات
-      const categories = professors.map((prof) => prof.professorName || "Unknown");
-  const lectureData = professors.map((prof) => prof.totalLectural || 0);
-  const daysData = professors.map((prof) => prof.numberDays || 0);
- const dynamicHeight = Math.max(400, categories.length * 15);
-
+      .slice(0, 10);
 
     return {
       chartOptions: {
         chart: {
           type: "bar",
-          height: dynamicHeight
+          height: 400
         },
         title: {
           text: "Top Teaching Time Slots",
@@ -251,26 +256,27 @@ const TeachingAssistantAnalysis = () => {
     );
   }
 
-  const professorChartData = prepareProfessorChartData();
+  const assistantChartData = prepareAssistantChartData();
   const timeSlotChartData = prepareTimeSlotChartData();
 
   return (
     <div className="background-main-pages">
       <Slidebar />
-      <div className="container  mx-auto sm:px-4 py-8">
+      <div className="container mx-auto sm:px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          TeachingAssistant_Analysis
+          Teaching Assistant Analysis
         </h1>
-        {/* Full-width Professor Teaching Statistics chart */}
+        
+        {/* Full-width Teaching Assistant Statistics chart */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <HighchartsReact
             highcharts={Highcharts}
-            options={professorChartData.chartOptions}
+            options={assistantChartData.chartOptions}
           />
         </div>
 
         {/* Time Slot section below */}
-        <div className=" flex flex-col   gap-8 mb-8">
+        <div className="flex flex-col gap-8 mb-8">
           {/* Time Slots chart - takes 2/3 width */}
           <div className="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
             <HighchartsReact
@@ -280,7 +286,7 @@ const TeachingAssistantAnalysis = () => {
           </div>
 
           {/* Time Slot Color Legend - takes 1/3 width */}
-          <div className="bg-white  p-8  rounded-lg shadow-md">
+          <div className="bg-white p-8 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Time Slot Colors</h2>
             <div className="flex flex-wrap gap-2">
               {Object.entries(timeSlotColors).map(([timeSlot, color]) => (
@@ -296,9 +302,10 @@ const TeachingAssistantAnalysis = () => {
           </div>
         </div>
 
-        <div className="bg-white  p-6 rounded-lg shadow-md">
+        {/* Detailed Teaching Assistant Statistics */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-2xl font-semibold mb-6">
-            Detailed Teaching_Assistant Statistics
+            Detailed Teaching Assistant Statistics
           </h2>
           
           <div className="overflow-x-auto">
@@ -306,7 +313,7 @@ const TeachingAssistantAnalysis = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Teaching_Assistant
+                    Teaching Assistant
                   </th>
                   
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -314,13 +321,11 @@ const TeachingAssistantAnalysis = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white  divide-gray-200">
-                {professors.map((professor, index) => {
-                  // Sort time slots by count (descending)
-                  const sortedTimeSlots = Object.entries(professor.eachTimeSlotNo)
+              <tbody className="bg-white divide-gray-200">
+                {teachingAssistants.map((assistant, index) => {
+                  const sortedTimeSlots = Object.entries(assistant.eachTimeSlotNo)
                     .sort((a, b) => b[1] - a[1]);
                   
-                  // Calculate total time slots for this professor
                   const totalSlots = sortedTimeSlots.reduce(
                     (sum, [_, count]) => sum + count, 0
                   );
@@ -328,13 +333,11 @@ const TeachingAssistantAnalysis = () => {
                   return (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900">
-                        {professor.professorName}
+                        {assistant.professorName}
                       </td>
                       
-                     
                       <td className="px-6 py-4 text-lg text-gray-500">
                         <div className="flex flex-col">
-                          {/* Time slots bar visualization */}
                           <div 
                             className="flex h-8 rounded overflow-hidden"
                             title={`Time slots: ${sortedTimeSlots.map(([time, count]) => `${time} (${count})`).join(', ')}`}
@@ -349,14 +352,11 @@ const TeachingAssistantAnalysis = () => {
                                 }}
                               >
                                 <span className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                   {count}
+                                  {count}
                                 </span>
-                               
                               </div>
                             ))}
                           </div>
-                          
-                          
                         </div>
                       </td>
                     </tr>
@@ -364,6 +364,23 @@ const TeachingAssistantAnalysis = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Unassigned Teaching Assistants Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-6 text-center">
+            Teaching Assistants Without Assigned Lectures ({unassignedAssistants.length})
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {unassignedAssistants.map((assistant, index) => (
+              <div 
+                key={index} 
+                className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center"
+              >
+                <span className="font-medium text-gray-700">{assistant}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

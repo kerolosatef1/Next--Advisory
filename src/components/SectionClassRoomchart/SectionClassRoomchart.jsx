@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import "highcharts/modules/exporting";
-import "highcharts/modules/export-data";
-import "highcharts/modules/accessibility";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import LoadingAnimation from "../Loading/Loading";
-import Slidebar from "../Slidebar/Slidebar";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import 'highcharts/modules/exporting';
+import 'highcharts/modules/export-data';
+import 'highcharts/modules/accessibility';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LoadingAnimation from '../Loading/Loading';
+import Slidebar from '../Slidebar/Slidebar';
 
-const ClassroomAnalysis = () => {
+const SectionClassroomAnalysis = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [emptyClassrooms, setEmptyClassrooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,9 +25,9 @@ const ClassroomAnalysis = () => {
           throw new Error("No authentication token found");
         }
 
-        const [lectureResponse, emptyResponse] = await Promise.all([
+        const [sectionResponse, emptyResponse] = await Promise.all([
           axios.get(
-            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/LectureClassRoom",
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/SectionClassRoom",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -36,7 +36,7 @@ const ClassroomAnalysis = () => {
             }
           ),
           axios.get(
-            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/ClassRoomLectureNotMapped",
+            "https://timetableapi.runasp.net/api/AnalysisAndStatisticals/ClassRoomSectionNotMapped",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -46,30 +46,22 @@ const ClassroomAnalysis = () => {
           )
         ]);
 
-        setClassrooms(lectureResponse.data);
+        setClassrooms(sectionResponse.data);
         setEmptyClassrooms(emptyResponse.data);
-
+        
         // Generate unique colors for each time slot
         const colors = {};
         const allTimeSlots = new Set();
-
-        lectureResponse.data.forEach((classroom) => {
-          Object.keys(classroom.eachTimeSlot).forEach((timeSlot) => {
+        
+        sectionResponse.data.forEach(classroom => {
+          Object.keys(classroom.eachTimeSlot).forEach(timeSlot => {
             allTimeSlots.add(timeSlot);
           });
         });
 
         const colorPalette = [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#8AC24A",
-          "#F06292",
-          "#7986CB",
-          "#FF7043",
+          "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+          "#FF9F40", "#8AC24A", "#F06292", "#7986CB", "#FF7043"
         ];
 
         Array.from(allTimeSlots).forEach((timeSlot, index) => {
@@ -90,7 +82,7 @@ const ClassroomAnalysis = () => {
 
   const prepareChartData = () => {
     const classroomMap = {};
-    classrooms.forEach((classroom) => {
+    classrooms.forEach(classroom => {
       classroomMap[classroom.classRoomName] = classroom;
     });
 
@@ -101,8 +93,7 @@ const ClassroomAnalysis = () => {
     ].sort();
 
     const dynamicHeight = Math.max(400, allClassrooms.length * 70);
-
-    // Prepare series data - occupied classrooms will have data, empty ones will be 0
+    
     const seriesData = allClassrooms.map((classroomName, index) => {
       const classroom = classroomMap[classroomName];
       
@@ -110,7 +101,7 @@ const ClassroomAnalysis = () => {
         y: classroom ? classroom.totalAssigned : 0,
         name: classroomName,
         timeSlots: classroom ? classroom.eachTimeSlot : {},
-        color: classroom ? `hsl(${(index * 30) % 360}, 70%, 50%)` : "#e2e8f0", // Gray for empty classrooms
+        color: classroom ? `hsl(${(index * 30) % 360}, 70%, 50%)` : "#e2e8f0",
         isEmpty: !classroom
       };
     });
@@ -118,64 +109,64 @@ const ClassroomAnalysis = () => {
     return {
       chartOptions: {
         chart: {
-          type: "bar",
+          type: 'bar',
           height: dynamicHeight,
-          backgroundColor: "#f8fafc",
+          backgroundColor: '#f8fafc'
         },
         title: {
-          text: "Lecture Hall Utilization Analysis",
+          text: 'Section Classroom Utilization Analysis',
           style: {
-            color: "#1e293b",
-            fontSize: "24px",
-          },
+            color: '#1e293b',
+            fontSize: '24px'
+          }
         },
         subtitle: {
           text: `Showing ${classrooms.length} occupied and ${emptyClassrooms.length} empty classrooms`,
           style: {
-            color: "#64748b"
+            color: '#64748b'
           }
         },
         xAxis: {
           categories: allClassrooms,
           title: {
-            text: "Lecture Halls",
+            text: 'Section Classrooms',
             style: {
-              color: "#475569",
-            },
+              color: '#475569'
+            }
           },
           labels: {
             style: {
-              color: "#475569",
-            },
-          },
+              color: '#475569'
+            }
+          }
         },
         yAxis: {
           min: 0,
           title: {
-            text: "Number of Lectures",
+            text: 'Number of Sections',
             style: {
-              color: "#475569",
-            },
+              color: '#475569'
+            }
           },
           labels: {
             style: {
-              color: "#475569",
-            },
+              color: '#475569'
+            }
           },
-          gridLineColor: "#e2e8f0",
+          gridLineColor: '#e2e8f0'
         },
         tooltip: {
           useHTML: true,
-          backgroundColor: "#ffffff",
-          borderColor: "#e2e8f0",
+          backgroundColor: '#ffffff',
+          borderColor: '#e2e8f0',
           borderRadius: 8,
           borderWidth: 1,
           shadow: true,
           style: {
-            color: "#1e293b",
-            width: "300px",
+            color: '#1e293b',
+            width: '300px'
           },
-          formatter: function () {
+          formatter: function() {
             if (this.point.isEmpty) {
               return `
                 <div class="space-y-2">
@@ -183,15 +174,14 @@ const ClassroomAnalysis = () => {
                     ${this.point.name}
                   </h3>
                   <div class="text-center py-4 text-slate-500">
-                    This classroom has no assigned lectures
+                    This classroom has no assigned sections
                   </div>
                 </div>
               `;
             }
 
             const classroom = classroomMap[this.point.name];
-            if (!classroom)
-              return '<div class="p-2 text-red-500">Data not available</div>';
+            if (!classroom) return '<div class="p-2 text-red-500">Data not available</div>';
 
             return `
               <div class="space-y-2">
@@ -200,10 +190,8 @@ const ClassroomAnalysis = () => {
                 </h3>
                 
                 <div class="flex justify-between items-center">
-                  <span class="text-slate-600">Total Assigned:</span>
-                  <span class="font-bold text-slate-800">${
-                    classroom.totalAssigned
-                  }</span>
+                  <span class="text-slate-600">Total Assigned Sections:</span>
+                  <span class="font-bold text-slate-800">${classroom.totalAssigned}</span>
                 </div>
                 
                 <div class="pt-2 border-t mt-2">
@@ -211,26 +199,21 @@ const ClassroomAnalysis = () => {
                   <div class="space-y-1 max-h-40 overflow-y-auto">
                     ${Object.entries(classroom.eachTimeSlot)
                       .sort((a, b) => b[1] - a[1])
-                      .map(
-                        ([timeSlot, count]) => `
+                      .map(([timeSlot, count]) => `
                         <div class="flex justify-between items-center py-1">
                           <div class="flex items-center">
                             <span class="w-2 h-2 rounded-full mr-2" 
-                              style="background-color: ${
-                                timeSlotColors[timeSlot] || "#94a3b8"
-                              }"></span>
+                              style="background-color: ${timeSlotColors[timeSlot] || '#94a3b8'}"></span>
                             <span class="text-slate-600">${timeSlot}:</span>
                           </div>
                           <span class="font-bold text-slate-800">${count}</span>
                         </div>
-                      `
-                      )
-                      .join("")}
+                      `).join('')}
                   </div>
                 </div>
               </div>
             `;
-          },
+          }
         },
         plotOptions: {
           bar: {
@@ -241,32 +224,30 @@ const ClassroomAnalysis = () => {
                 return this.point.isEmpty ? "Empty" : this.point.y;
               },
               style: {
-                color: "#1e293b",
-                textOutline: "none",
-                fontSize: "12px",
-              },
+                color: '#1e293b',
+                textOutline: 'none',
+                fontSize: '12px'
+              }
             },
             states: {
               hover: {
-                borderColor: "#94a3b8",
-                borderWidth: 1,
-              },
-            },
-          },
+                borderColor: '#94a3b8',
+                borderWidth: 1
+              }
+            }
+          }
         },
-        series: [
-          {
-            name: "Lectures Assigned",
-            data: seriesData,
-          },
-        ],
+        series: [{
+          name: 'Sections Assigned',
+          data: seriesData
+        }],
         credits: {
-          enabled: false,
+          enabled: false
         },
         accessibility: {
-          enabled: true,
-        },
-      },
+          enabled: true
+        }
+      }
     };
   };
 
@@ -293,9 +274,9 @@ const ClassroomAnalysis = () => {
       <Slidebar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Lecture Hall Utilization Analysis
+          Section Classroom Utilization Analysis
         </h1>
-
+        
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <HighchartsReact
             highcharts={Highcharts}
@@ -306,7 +287,7 @@ const ClassroomAnalysis = () => {
         {/* Empty Classrooms Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-4 text-center">
-            Empty Classrooms ({emptyClassrooms.length})
+            Empty Section Classrooms ({emptyClassrooms.length})
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {emptyClassrooms.map((classroom, index) => (
@@ -323,5 +304,4 @@ const ClassroomAnalysis = () => {
     </div>
   );
 };
-
-export default ClassroomAnalysis;
+export default SectionClassroomAnalysis;
