@@ -49,7 +49,7 @@ const SectionClassroomAnalysis = () => {
         setClassrooms(sectionResponse.data);
         setEmptyClassrooms(emptyResponse.data);
         
-        // Generate unique colors for each time slot
+        // Generate unique colors for each time slot (for tooltips)
         const colors = {};
         const allTimeSlots = new Set();
         
@@ -86,25 +86,19 @@ const SectionClassroomAnalysis = () => {
       classroomMap[classroom.classRoomName] = classroom;
     });
 
-    // Combine both occupied and empty classrooms for categories
-    const allClassrooms = [
-      ...classrooms.map(c => c.classRoomName),
-      ...emptyClassrooms
-    ].sort();
+    // Use only occupied classrooms for the chart
+    const chartClassrooms = [...classrooms].sort((a, b) => 
+      a.classRoomName.localeCompare(b.classRoomName)
+    );
 
-    const dynamicHeight = Math.max(400, allClassrooms.length * 70);
+    const dynamicHeight = Math.max(400, chartClassrooms.length * 70);
     
-    const seriesData = allClassrooms.map((classroomName, index) => {
-      const classroom = classroomMap[classroomName];
-      
-      return {
-        y: classroom ? classroom.totalAssigned : 0,
-        name: classroomName,
-        timeSlots: classroom ? classroom.eachTimeSlot : {},
-        color: classroom ? `hsl(${(index * 30) % 360}, 70%, 50%)` : "#e2e8f0",
-        isEmpty: !classroom
-      };
-    });
+    const seriesData = chartClassrooms.map(classroom => ({
+      y: classroom.totalAssigned,
+      name: classroom.classRoomName,
+      timeSlots: classroom.eachTimeSlot,
+      color: "#3b82f6", // Single color for all bars (blue-500)
+    }));
 
     return {
       chartOptions: {
@@ -121,13 +115,13 @@ const SectionClassroomAnalysis = () => {
           }
         },
         subtitle: {
-          text: `Showing ${classrooms.length} occupied and ${emptyClassrooms.length} empty classrooms`,
+          text: `Showing ${classrooms.length} occupied classrooms`,
           style: {
             color: '#64748b'
           }
         },
         xAxis: {
-          categories: allClassrooms,
+          categories: chartClassrooms.map(c => c.classRoomName),
           title: {
             text: 'Section Classrooms',
             style: {
@@ -167,19 +161,6 @@ const SectionClassroomAnalysis = () => {
             width: '300px'
           },
           formatter: function() {
-            if (this.point.isEmpty) {
-              return `
-                <div class="space-y-2">
-                  <h3 class="text-lg font-bold text-slate-800 border-b pb-2">
-                    ${this.point.name}
-                  </h3>
-                  <div class="text-center py-4 text-slate-500">
-                    This classroom has no assigned sections
-                  </div>
-                </div>
-              `;
-            }
-
             const classroom = classroomMap[this.point.name];
             if (!classroom) return '<div class="p-2 text-red-500">Data not available</div>';
 
@@ -217,12 +198,9 @@ const SectionClassroomAnalysis = () => {
         },
         plotOptions: {
           bar: {
-            colorByPoint: true,
+            color: "#3b82f6", // Single color for all bars
             dataLabels: {
               enabled: true,
-              formatter: function() {
-                return this.point.isEmpty ? "Empty" : this.point.y;
-              },
               style: {
                 color: '#1e293b',
                 textOutline: 'none',
@@ -239,7 +217,8 @@ const SectionClassroomAnalysis = () => {
         },
         series: [{
           name: 'Sections Assigned',
-          data: seriesData
+          data: seriesData,
+          color: "#3b82f6" // Single color for all bars
         }],
         credits: {
           enabled: false
@@ -304,4 +283,5 @@ const SectionClassroomAnalysis = () => {
     </div>
   );
 };
+
 export default SectionClassroomAnalysis;

@@ -303,7 +303,7 @@ const Slidebar = () => {
                     <ListItemPrefix>
                       <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                     </ListItemPrefix>
-                    <button onClick={() => navigate('/analysis-teachingassistant')}>Teaching Assistant Analysis</button>
+                    <button onClick={() => navigate('/analysis-teachingassistant')}>TeachingAssistant analysis</button>
                   </ListItem>
                   <ListItem>
                     <ListItemPrefix>
