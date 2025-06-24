@@ -43,28 +43,48 @@ const TeachingAssistantAnalysis = () => {
                 "Content-Type": "application/json",
               },
             }
-          )
+          ),
         ]);
 
         setTeachingAssistants(assistantsResponse.data);
         setUnassignedAssistants(unassignedResponse.data);
-        
+
         // Generate unique colors for each time slot
         const colors = {};
         const allTimeSlots = new Set();
-        
-        assistantsResponse.data.forEach(assistant => {
-          Object.keys(assistant.eachTimeSlotNo).forEach(timeSlot => {
+
+        assistantsResponse.data.forEach((assistant) => {
+          Object.keys(assistant.eachTimeSlotNo).forEach((timeSlot) => {
             allTimeSlots.add(timeSlot);
           });
         });
 
         const colorPalette = [
-          "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
-          "#FF9F40", "#8AC24A", "#F06292", "#7986CB", "#FF7043",
-          "#A1887F", "#4DB6AC", "#E57373", "#64B5F6", "#BA68C8",
-          "#9575CD", "#4FC3F7", "#81C784", "#FFF176", "#FF8A65",
-          "#F48FB1", "#90CAF9", "#AED581", "#FFD54F", "#A1887F"
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          "#8AC24A",
+          "#F06292",
+          "#7986CB",
+          "#FF7043",
+          "#A1887F",
+          "#4DB6AC",
+          "#E57373",
+          "#64B5F6",
+          "#BA68C8",
+          "#9575CD",
+          "#4FC3F7",
+          "#81C784",
+          "#FFF176",
+          "#FF8A65",
+          "#F48FB1",
+          "#90CAF9",
+          "#AED581",
+          "#FFD54F",
+          "#A1887F",
         ];
 
         Array.from(allTimeSlots).forEach((timeSlot, index) => {
@@ -87,7 +107,7 @@ const TeachingAssistantAnalysis = () => {
     const categories = teachingAssistants.map((ta) => ta.professorName);
     const lectureData = teachingAssistants.map((ta) => ta.totalLectural);
     const daysData = teachingAssistants.map((ta) => ta.numberDays);
-    
+
     const dynamicHeight = Math.max(400, categories.length * 80);
 
     return {
@@ -95,15 +115,15 @@ const TeachingAssistantAnalysis = () => {
         chart: {
           type: "bar",
           height: dynamicHeight,
-          backgroundColor: "#f8fafc"
+          backgroundColor: "#f8fafc",
         },
         title: {
           text: "Teaching Assistant Statistics",
           style: {
             color: "#1e293b",
             fontSize: "24px",
-            fontWeight: "600"
-          }
+            fontWeight: "600",
+          },
         },
         xAxis: {
           categories: categories,
@@ -111,9 +131,9 @@ const TeachingAssistantAnalysis = () => {
           labels: {
             style: {
               color: "#475569",
-              fontSize: "14px"
-            }
-          }
+              fontSize: "14px",
+            },
+          },
         },
         yAxis: {
           min: 0,
@@ -121,19 +141,20 @@ const TeachingAssistantAnalysis = () => {
             text: "Count",
             style: {
               color: "#475569",
-              fontSize: "15px"
-            }
+              fontSize: "15px",
+            },
           },
           labels: {
             style: {
               color: "#475569",
-              fontSize: "14px"
-            }
+              fontSize: "14px",
+            },
           },
-          gridLineColor: "#e2e8f0"
+          gridLineColor: "#e2e8f0",
         },
         tooltip: {
-          headerFormat: '<span style="font-size:14px">{point.key}</span><table>',
+          headerFormat:
+            '<span style="font-size:14px">{point.key}</span><table>',
           pointFormat:
             '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
             '<td style="padding:0"><b>{point.y}</b></td></tr>',
@@ -144,7 +165,7 @@ const TeachingAssistantAnalysis = () => {
           borderColor: "#e2e8f0",
           borderRadius: 8,
           borderWidth: 1,
-          shadow: true
+          shadow: true,
         },
         plotOptions: {
           bar: {
@@ -155,16 +176,16 @@ const TeachingAssistantAnalysis = () => {
               style: {
                 color: "#1e293b",
                 fontSize: "14px",
-                textOutline: "none"
-              }
+                textOutline: "none",
+              },
             },
             states: {
               hover: {
                 borderColor: "#94a3b8",
-                borderWidth: 1
-              }
-            }
-          }
+                borderWidth: 1,
+              },
+            },
+          },
         },
         series: [
           {
@@ -182,8 +203,8 @@ const TeachingAssistantAnalysis = () => {
           enabled: false,
         },
         accessibility: {
-          enabled: true
-        }
+          enabled: true,
+        },
       },
     };
   };
@@ -206,15 +227,15 @@ const TeachingAssistantAnalysis = () => {
         chart: {
           type: "bar",
           height: 400,
-          backgroundColor: "#f8fafc"
+          backgroundColor: "#f8fafc",
         },
         title: {
           text: "Top Teaching Time Slots",
           style: {
             color: "#1e293b",
             fontSize: "24px",
-            fontWeight: "600"
-          }
+            fontWeight: "600",
+          },
         },
         xAxis: {
           categories: sortedTimeSlots.map((item) => item[0]),
@@ -224,9 +245,9 @@ const TeachingAssistantAnalysis = () => {
           labels: {
             style: {
               color: "#475569",
-              fontSize: "14px"
-            }
-          }
+              fontSize: "14px",
+            },
+          },
         },
         yAxis: {
           min: 0,
@@ -235,16 +256,16 @@ const TeachingAssistantAnalysis = () => {
             align: "high",
             style: {
               color: "#475569",
-              fontSize: "16px"
-            }
+              fontSize: "16px",
+            },
           },
           labels: {
             style: {
               color: "#475569",
-              fontSize: "14px"
-            }
+              fontSize: "14px",
+            },
           },
-          gridLineColor: "#e2e8f0"
+          gridLineColor: "#e2e8f0",
         },
         plotOptions: {
           bar: {
@@ -254,15 +275,15 @@ const TeachingAssistantAnalysis = () => {
               style: {
                 color: "#1e293b",
                 fontSize: "14px",
-                textOutline: "none"
-              }
+                textOutline: "none",
+              },
             },
             states: {
               hover: {
                 borderColor: "#94a3b8",
-                borderWidth: 1
-              }
-            }
+                borderWidth: 1,
+              },
+            },
           },
         },
         series: [
@@ -275,18 +296,18 @@ const TeachingAssistantAnalysis = () => {
           enabled: false,
         },
         accessibility: {
-          enabled: true
-        }
+          enabled: true,
+        },
       },
     };
   };
 
   const prepareAssistantStats = () => {
-    return teachingAssistants.map(ta => ({
+    return teachingAssistants.map((ta) => ({
       name: ta.professorName,
       lectures: ta.totalLectural,
       days: ta.numberDays,
-      timeSlots: ta.eachTimeSlotNo
+      timeSlots: ta.eachTimeSlotNo,
     }));
   };
 
@@ -324,8 +345,14 @@ const TeachingAssistantAnalysis = () => {
   const timeSlotChartData = prepareTimeSlotChartData();
   const assistantStats = prepareAssistantStats();
   const timeSlotStats = prepareTimeSlotStats();
-  const totalLectures = assistantStats.reduce((sum, ta) => sum + ta.lectures, 0);
-  const totalTimeSlots = timeSlotStats.reduce((sum, slot) => sum + slot.count, 0);
+  const totalLectures = assistantStats.reduce(
+    (sum, ta) => sum + ta.lectures,
+    0
+  );
+  const totalTimeSlots = timeSlotStats.reduce(
+    (sum, slot) => sum + slot.count,
+    0
+  );
 
   return (
     <div className="background-main-pages">
@@ -336,10 +363,11 @@ const TeachingAssistantAnalysis = () => {
             Teaching Assistant Analysis
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Distribution of teaching assignments across assistants and time slots
+            Distribution of teaching assignments across assistants and time
+            slots
           </p>
         </header>
-        
+
         <main className="max-w-7xl mx-auto space-y-8">
           {/* Assistant Chart */}
           <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
@@ -364,37 +392,57 @@ const TeachingAssistantAnalysis = () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {assistantStats.map((assistant, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
                 >
-                  <h3 className="font-bold text-gray-700 text-center mb-2">{assistant.name}</h3>
+                  <h3 className="font-bold text-gray-700 text-center mb-2">
+                    {assistant.name}
+                  </h3>
                   <div className="space-y-2">
                     <p className="text-gray-600">
-                      Lectures: <span className="font-bold">{assistant.lectures}</span>
+                      Lectures:{" "}
+                      <span className="font-bold">{assistant.lectures}</span>
                       <span className="text-sm ml-2 text-gray-500">
-                        ({(assistant.lectures / totalLectures * 100 || 0).toFixed(1)}%)
+                        (
+                        {(
+                          (assistant.lectures / totalLectures) * 100 || 0
+                        ).toFixed(1)}
+                        %)
                       </span>
                     </p>
                     <p className="text-gray-600">
-                      Teaching Days: <span className="font-bold">{assistant.days}</span>
+                      Teaching Days:{" "}
+                      <span className="font-bold">{assistant.days}</span>
                     </p>
                     <div className="pt-2">
-                      <h4 className="text-sm font-semibold text-gray-600 mb-1">Top Time Slots:</h4>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-1">
+                        Top Time Slots:
+                      </h4>
                       <div className="space-y-1">
                         {Object.entries(assistant.timeSlots)
                           .sort((a, b) => b[1] - a[1])
                           .slice(0, 3)
                           .map(([timeSlot, count]) => (
-                            <div key={timeSlot} className="flex justify-between items-center">
+                            <div
+                              key={timeSlot}
+                              className="flex justify-between items-center"
+                            >
                               <div className="flex items-center">
-                                <span 
-                                  className="w-2 h-2 rounded-full mr-2" 
-                                  style={{ backgroundColor: timeSlotColors[timeSlot] || '#94a3b8' }}
+                                <span
+                                  className="w-2 h-2 rounded-full mr-2"
+                                  style={{
+                                    backgroundColor:
+                                      timeSlotColors[timeSlot] || "#94a3b8",
+                                  }}
                                 ></span>
-                                <span className="text-gray-600 text-sm">{timeSlot}:</span>
+                                <span className="text-gray-600 text-sm">
+                                  {timeSlot}:
+                                </span>
                               </div>
-                              <span className="font-bold text-gray-700 text-sm">{count}</span>
+                              <span className="font-bold text-gray-700 text-sm">
+                                {count}
+                              </span>
                             </div>
                           ))}
                       </div>
@@ -405,8 +453,6 @@ const TeachingAssistantAnalysis = () => {
             </div>
           </div>
 
-          
-
           {/* Unassigned Assistants */}
           <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
             <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">
@@ -414,8 +460,8 @@ const TeachingAssistantAnalysis = () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {unassignedAssistants.map((assistant, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center hover:shadow-sm transition-shadow"
                 >
                   <span className="font-medium text-gray-700">{assistant}</span>

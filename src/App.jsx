@@ -50,6 +50,8 @@ import WeekDaysPieChart from './components/SectionClassRoomchart/SectionClassRoo
 import TimeslotsandDay from './components/LectureClassRoom/LectureClassRoom';
 import TimeSlotAndDaysChart from './components/TimeslotandDaychart/TimeslotandDaychart';
 import ChartsComparisonPage from './components/TimeslotandDaychart/TimeslotandDaychart';
+import TableRatingManagement from './components/Rating/Rating';
+import RatingPage from './components/Rating/Rating';
 
 
 let query=new QueryClient({
@@ -88,6 +90,8 @@ function App() {
       {path:'analysis-lecture-halls',element:<ProtectedRouting><ClassroomAnalysis/></ProtectedRouting>},
       {path:'analysis-section-halls',element:<ProtectedRouting><SectionClassroomAnalysis/></ProtectedRouting>},
       {path:'analysis-time-periods',element:<ProtectedRouting><TimeAnalysisDashboard/></ProtectedRouting>},
+      {path:'rating',element:<ProtectedRouting><RatingPage/></ProtectedRouting>},
+
 
 
 
