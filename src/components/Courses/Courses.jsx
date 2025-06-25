@@ -39,6 +39,11 @@ const GetCourses = () => {
   const [editingCourse, setEditingCourse] = useState(null);
   const [newName, setNewName] = useState("");
   const [yearsList, setYearsList] = useState([]);
+const [staffDialogOpen, setStaffDialogOpen] = useState(false);
+const [staffType, setStaffType] = useState(""); // "professors" or "teachingAssistants"
+const [staffList, setStaffList] = useState([]);
+const [selectedCourseName, setSelectedCourseName] = useState("");
+const [coursesDetails, setCoursesDetails] = useState({});
 
   const queryClient = useQueryClient();
 
@@ -111,6 +116,51 @@ const GetCourses = () => {
     }
   }, [courses]);
 
+  useEffect(() => {
+  const fetchCourseDetails = async () => {
+    const token = localStorage.getItem("userToken");
+    const headers = { Authorization: `Bearer ${token}` };
+    const detailsMap = {};
+
+    await Promise.all(
+      courses.map(async (course) => {
+        try {
+          const { data } = await axios.get(
+            `https://timetableapi.runasp.net/api/Courses/${course.id}`,
+            { headers }
+          );
+          detailsMap[course.id] = {
+            professors: data.professors || [],
+            teachingAssistants: data.teachingAssistants || [],
+          };
+        } catch (e) {
+          detailsMap[course.id] = {
+            professors: [],
+            teachingAssistants: [],
+          };
+        }
+      })
+    );
+
+    setCoursesDetails(detailsMap);
+  };
+
+  if (courses.length > 0) {
+    fetchCourseDetails();
+  }
+}, [courses]);
+
+const getCourseById = async (id) => {
+  const token = localStorage.getItem("userToken");
+  const { data } = await axios.get(
+    `https://timetableapi.runasp.net/api/Courses/${id}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return data;
+};
+
   // Helper functions
   const resetForm = () => {
     setCourse({
@@ -172,7 +222,7 @@ const GetCourses = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["courses"]);
-      toast.success(isEdit ? "تم تحديث المادة بنجاح" : "تم إضافة المادة بنجاح");
+      toast.success(isEdit ? "Update Successfully" : "Add Courses Successfully");
       resetForm();
       handleOpen();
     },
@@ -195,7 +245,7 @@ const GetCourses = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["courses"]);
-      toast.success("تم حذف المادة بنجاح");
+      toast.success("Delete Successfully");
     },
     onError: (error) => {
       toast.error(`❌ فشل الحذف: ${error.response?.data?.message}`);
@@ -333,6 +383,17 @@ const GetCourses = () => {
       );
     }
   };
+const handleViewStaff = async (courseId, type) => {
+  try {
+    const data = await getCourseById(courseId);
+    setStaffList(data[type]);
+    setStaffType(type);
+    setSelectedCourseName(data.name);
+    setStaffDialogOpen(true);
+  } catch (err) {
+    toast.error("فشل في تحميل بيانات المادة");
+  }
+};
 
   const handleEditConfirmation = (year) => {
     setSelectedYear(year);
@@ -683,6 +744,30 @@ const GetCourses = () => {
         </DialogFooter>
       </Dialog>
 
+
+      <Dialog open={staffDialogOpen} handler={() => setStaffDialogOpen(false)}>
+  <DialogHeader>
+    {staffType === "professors" ? "Professors" : "Teaching Assistants"} for {selectedCourseName}
+  </DialogHeader>
+  <DialogBody>
+    {staffList.length > 0 ? (
+      <ul className="list-disc pl-6">
+        {staffList.map((person) => (
+          <li key={person.id} className="text-base font-medium">
+            {person.name}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-gray-600">No data available.</p>
+    )}
+  </DialogBody>
+  <DialogFooter>
+    <Button onClick={() => setStaffDialogOpen(false)}>Close</Button>
+  </DialogFooter>
+</Dialog>
+
+
       {/* Main Content */}
       <div className="background-main-pages">
         <Slidebar />
@@ -741,7 +826,10 @@ const GetCourses = () => {
                         <th className="px-6 py-3 text-start text-xs font-medium text-white uppercase">
                           Year
                         </th>
-                        <th className="px-6 py-3 text-end text-xs font-medium text-white uppercase">
+                        <th className="px-6 py-3 text-center text-xs font-medium text-white uppercase">
+                          Teams
+                        </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-white uppercase">
                           Actions
                         </th>
                       </tr>
@@ -783,7 +871,7 @@ const GetCourses = () => {
                             .map(([year, data]) => (
                               <Fragment key={year}>
                                 <tr className="bg-gray-700">
-                                  <td colSpan="6" className="p-2 text-center">
+                                  <td colSpan="7" className="p-2 text-center">
                                     <div className="flex items-center justify-center gap-2">
                                       <Button
                                         onClick={() => {
@@ -820,7 +908,7 @@ const GetCourses = () => {
                                     key={course.id}
                                     className="hover:bg-black"
                                   >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                    <td className="px-6 tex py-4 whitespace-nowrap text-sm text-white">
                                       {course.name}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
@@ -835,6 +923,36 @@ const GetCourses = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                                       {course.year}
                                     </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                      <div className="flex gap-4 justify-end">
+                                        <button
+  onClick={() => handleViewStaff(course.id, "professors")}
+  className={`px-2 py-1 rounded text-white font-semibold ${
+    coursesDetails[course.id]?.professors?.length > 0
+      ? "bg-green-500"
+      : "bg-red-600"
+  }`}
+>
+  Professors
+</button>
+
+<button
+  onClick={() => handleViewStaff(course.id, "teachingAssistants")}
+  className={`px-2 py-1 rounded text-white font-semibold ${
+    coursesDetails[course.id]?.teachingAssistants?.length > 0
+      ? "bg-green-500"
+      : "bg-red-600"
+  }`}
+>
+  TAs
+</button>
+
+
+                                      </div>
+                                    </td>
+
+
                                     <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                       <div className="flex gap-4 justify-end">
                                         <button
