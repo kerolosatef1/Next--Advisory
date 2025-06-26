@@ -119,8 +119,7 @@ const SpecialStudent = () => {
         professor: entry.name_professor_or_teaching_assistant,
         room: entry.room,
         type: entry.type,
-        year: entry.year,
-        group: entry.group
+      
       });
 
       allTimeSlots.add(time);
@@ -226,8 +225,7 @@ const SpecialStudent = () => {
                           <div className="text-sm text-white">
                             <div>{lecture.professor}</div>
                             <div>{lecture.room || "Not specified"}</div>
-                            <div>Year: {lecture.year}</div>
-                            <div>Group: {lecture.group}</div>
+                            
                           </div>
                         </div>
                       ))}
