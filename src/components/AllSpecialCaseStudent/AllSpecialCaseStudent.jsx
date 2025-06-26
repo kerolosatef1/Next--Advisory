@@ -87,6 +87,7 @@ const StudentTimetable = () => {
           professor: course.nameProfessorOrTeachingAssistant,
           room: course.room,
           type: course.type,
+            
         });
 
         allTimeSlots.add(normalizedTime);
