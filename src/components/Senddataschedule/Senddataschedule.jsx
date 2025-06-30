@@ -9,6 +9,10 @@ import {
   CardBody,
   CardHeader,
   Tooltip,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import { useMutation } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
@@ -19,9 +23,14 @@ import Slidebar from "../Slidebar/Slidebar";
 
 const GenerateSchedule = () => {
   const navigate = useNavigate();
+  const [openClearDialog, setOpenClearDialog] = useState(false);
   const [selectedDays, setSelectedDays] = useState(() => {
     const saved = localStorage.getItem("generateSchedule_selectedDays");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
   const [timeslots, setTimeslots] = useState(() => {
     const saved = localStorage.getItem("generateSchedule_timeslots");
@@ -32,6 +41,7 @@ const GenerateSchedule = () => {
     const saved = localStorage.getItem("generateSchedule_run_capacity");
     return saved ? JSON.parse(saved) : false;
   });
+
   useEffect(() => {
     localStorage.setItem(
       "generateSchedule_selectedDays",
@@ -53,7 +63,6 @@ const GenerateSchedule = () => {
     );
   }, [run_capacity]);
 
-  // أيام الأسبوع كـ strings
   const daysOfWeek = [
     { id: "1", name: "Saturday" },
     { id: "2", name: "Sunday" },
@@ -64,7 +73,6 @@ const GenerateSchedule = () => {
     { id: "7", name: "Friday" },
   ];
 
-  // قبول تنسيقات مرنة للوقت
   const isValidTimeslot = (time) => {
     const regex = /^(\d{1,2}:\d{1,2})-(\d{1,2}:\d{1,2})$/;
     return regex.test(time);
@@ -105,14 +113,12 @@ const GenerateSchedule = () => {
     onSuccess: () => {
       toast.success("Done, Successful Create TimeTable");
       navigate("/timetable");
-      resetForm();
     },
     onError: (error) => {
       toast.error(error.message || "Problem on resourses ,Please Try Again");
     },
   });
 
-  // إدارة اختيار الأيام
   const handleDayCheck = (dayId) => {
     setSelectedDays((prev) =>
       prev.includes(dayId)
@@ -121,7 +127,6 @@ const GenerateSchedule = () => {
     );
   };
 
-  // إدارة الأوقات
   const addTimeslot = () => {
     if (timeslots.length < 10) {
       setTimeslots([...timeslots, ""]);
@@ -171,15 +176,19 @@ const GenerateSchedule = () => {
     });
   };
 
-  // Modified reset function
   const resetForm = () => {
     setSelectedDays([]);
     setTimeslots([""]);
     setRunCapacity(false);
-    // Clear localStorage
+  };
+
+  const handleClearSettings = () => {
+    resetForm();
     localStorage.removeItem("generateSchedule_selectedDays");
     localStorage.removeItem("generateSchedule_timeslots");
     localStorage.removeItem("generateSchedule_run_capacity");
+    setOpenClearDialog(false);
+    toast.success("All settings have been cleared");
   };
 
   return (
@@ -195,24 +204,43 @@ const GenerateSchedule = () => {
         draggable
         pauseOnHover
       />
-      <div className="background-main-pages ">
+      
+      {/* Clear Settings Dialog */}
+      <Dialog open={openClearDialog} handler={() => setOpenClearDialog(!openClearDialog)}>
+        <DialogHeader>Clear All Settings</DialogHeader>
+        <DialogBody>
+          Are you sure you want to clear all schedule settings? This action cannot be undone.
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            variant="text"
+            color="red"
+            onClick={() => setOpenClearDialog(false)}
+            className="mr-1"
+          >
+            Cancel
+          </Button>
+          <Button variant="gradient" color="green" onClick={handleClearSettings}>
+            Confirm
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      <div className="background-main-pages">
         <Slidebar />
-        <div className="max-w-screen-xl mx-auto rounded-md   ">
-          <Card className="shadow-xl ">
+        <div className="max-w-screen-xl mx-auto rounded-md">
+          <Card className="shadow-xl">
             <CardHeader floated={false} className="bg-blue-800 text-white p-4">
-              <Typography  className=" text-center text-xl md:text-3xl font-bold">
+              <Typography className="text-center text-xl md:text-3xl font-bold">
                 Generate a Schedule
               </Typography>
             </CardHeader>
 
-            <CardBody className="p-6 ">
+            <CardBody className="p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Typography
-                      variant="h6"
-                      className=" font-bold text-gray-700"
-                    >
+                    <Typography variant="h6" className="font-bold text-gray-700">
                       University study days
                     </Typography>
                     <Tooltip content="Select the days you want to include in the schedule">
@@ -236,10 +264,20 @@ const GenerateSchedule = () => {
                   </div>
                 </div>
                 
+                <Button
+                  type="button"
+                  variant="outlined"
+                  color="red"
+                  onClick={() => setOpenClearDialog(true)}
+                  className="mt-2"
+                >
+                  Clear All Settings
+                </Button>
+
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <Typography variant="h6" className="text-gray-700">
-                      times:
+                      Times:
                     </Typography>
                     <Tooltip content="Time format: start-end (example: 09:00-11:00)">
                       <InformationCircleIcon className="h-5 w-5 text-blue-500" />
@@ -251,9 +289,7 @@ const GenerateSchedule = () => {
                         <Input
                           placeholder="09:00-11:00"
                           value={timeslot}
-                          onChange={(e) =>
-                            updateTimeslot(index, e.target.value)
-                          }
+                          onChange={(e) => updateTimeslot(index, e.target.value)}
                           className={`flex-1 dir-ltr text-center ${
                             !isValidTimeslot(timeslot) && timeslot !== ""
                               ? "!border-red-500"
@@ -273,7 +309,7 @@ const GenerateSchedule = () => {
                       </div>
                       {!isValidTimeslot(timeslot) && timeslot !== "" && (
                         <span className="absolute text-red-500 text-xs mt-1">
-                          تنسيق الوقت غير صحيح
+                          Incorrect time format
                         </span>
                       )}
                     </div>
@@ -291,7 +327,6 @@ const GenerateSchedule = () => {
                   </Button>
                 </div>
 
-                {/* الالتزام بقدرة القاعات */}
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={run_capacity}
@@ -328,7 +363,7 @@ const GenerateSchedule = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      جاري المعالجة...
+                      Processing...
                     </div>
                   ) : (
                     "Schedule"

@@ -130,52 +130,80 @@ const WeeklyTimetable = () => {
 }, [selectedYear, selectedGroup]);
 
   const exportToWord = () => {
-    const header = `
-      <div style="text-align:center;padding:20px;border-bottom:2px solid #e2e8f0;">
-        <h2 style="color:#2d3748;margin:0;">Academic Year: ${selectedYear}</h2>
-        <h3 style="color:#4a5568;margin:5px 0 0;">Group: ${selectedGroup}</h3>
-      </div>
-    `;
-  
-    // إضافة الأنماط بشكل مباشر لكل عنصر
-    const tableHtml = tableRef.current.outerHTML
-      .replace(/bg-lecture/g, 'style="background-color:#3182ce;color:white;padding:8px;border-radius:4px;"')
-      .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;"')
-      .replace(/bg-days/g, 'style="background-color:#ef4444;color:white;"');
-  
-    const htmlContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-            xmlns:w="urn:schemas-microsoft-com:office:word">
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            table { 
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, sans-serif;
-            }
-            th, td {
-              border: 1px solid #cbd5e0;
-              padding: 12px;
-              text-align: center;
-            }
-          </style>
-        </head>
-        <body>
-          ${header}
-          ${tableHtml}
-        </body>
-      </html>
-    `;
-  
-    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Timetable_${selectedYear}_${selectedGroup}.doc`;
-    link.click();
-  };
+  const header = `
+    <div style="text-align:center;padding:20px;border-bottom:2px solid #e2e8f0;">
+      <h2 style="color:#2d3748;margin:0;font-family:'Arial', sans-serif;">Academic Year: ${selectedYear}</h2>
+      <h3 style="color:#4a5568;margin:5px 0 0;font-family:'Arial', sans-serif;">Group: ${selectedGroup}</h3>
+    </div>
+  `;
 
+  // استبدال الأنماط مع تحديد الخطوط
+  const tableHtml = tableRef.current.outerHTML
+    .replace(/<th/g, '<th style="font-family:\'Arial\',sans-serif;font-size:12pt;font-weight:bold;padding:8px;border:1px solid #ddd;background-color:#3182ce;color:white;"')
+    .replace(/<td/g, '<td style="font-family:\'Arial\',sans-serif;font-size:11pt;padding:8px;border:1px solid #ddd;"')
+    .replace(/bg-lecture/g, 'style="background-color:#3182ce;color:white;padding:8px;border-radius:4px;font-family:\'Arial\',sans-serif;font-size:11pt;"')
+    .replace(/bg-sections/g, 'style="background-color:#38a169;color:white;padding:8px;border-radius:4px;font-family:\'Arial\',sans-serif;font-size:11pt;"')
+    .replace(/bg-days/g, 'style="background-color:#ef4444;color:white;font-family:\'Arial\',sans-serif;"');
+
+  const htmlContent = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:w="urn:schemas-microsoft-com:office:word">
+      <head>
+        <meta charset="UTF-8">
+        <title>Timetable</title>
+        <style>
+          @page {
+            size: A4 landscape;
+            margin: 1cm;
+          }
+          body {
+            font-family: 'Arial', sans-serif;
+            direction: ltr;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            font-family: 'Arial', sans-serif;
+            margin: 20px 0;
+          }
+          th, td {
+            border: 1px solid #cbd5e0;
+            padding: 12px;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+          }
+          th {
+            background-color: #3182ce;
+            color: white;
+            font-weight: bold;
+            font-size: 12pt;
+          }
+          .lecture-cell {
+            background-color: #3182ce;
+            color: white;
+            font-size: 11pt;
+          }
+          .section-cell {
+            background-color: #38a169;
+            color: white;
+            font-size: 11pt;
+          }
+        </style>
+      </head>
+      <body>
+        ${header}
+        ${tableHtml}
+      </body>
+    </html>
+  `;
+
+  const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `Timetable_${selectedYear}_${selectedGroup}.doc`;
+  link.click();
+};
 
 const exportAllTablesToPDF = useCallback(async () => {
   if (!organizedData || Object.keys(organizedData).length === 0) return;

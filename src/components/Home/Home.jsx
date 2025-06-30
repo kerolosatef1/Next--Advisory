@@ -726,7 +726,7 @@ export default function Home() {
                         <div className="text-white mb-2">Follow Us</div>
                         <div className="flex space-x-3">
                           <a
-                            href="#"
+                            href="https://x.com/nadvisory57609?s=21" target="_blank"
                             className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                           >
                             <svg
@@ -738,7 +738,7 @@ export default function Home() {
                             </svg>
                           </a>
                           <a
-                            href="#"
+                            href="https://www.instagram.com/nextadvisory_26?igsh=czRpNDJzNTNlMXcw&utm_source=qr" target="_blank"
                             className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                           >
                             <svg
@@ -750,7 +750,7 @@ export default function Home() {
                             </svg>
                           </a>
                           <a
-                            href="#"
+                            href="https://www.linkedin.com/in/next-advisory-a4a047372?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"
                             className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                           >
                             <svg
@@ -906,7 +906,7 @@ export default function Home() {
 
               <div className="flex space-x-3">
                 <a
-                  href="#"
+                  href="https://x.com/nadvisory57609?s=21" target="_blank"
                   className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                 >
                   <svg
@@ -918,7 +918,7 @@ export default function Home() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/nextadvisory_26?igsh=czRpNDJzNTNlMXcw&utm_source=qr" target="_blank"
                   className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                 >
                   <svg
@@ -930,7 +930,7 @@ export default function Home() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/in/next-advisory-a4a047372?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"
                   className="w-8 h-8 rounded-full bg-indigo-900/50 flex items-center justify-center text-white hover:bg-indigo-800 transition-colors"
                 >
                   <svg
