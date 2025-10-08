@@ -28,7 +28,6 @@ import Resetpassword from './components/Resetpassword/Resetpassword';
 import Forgetpassword from './components/Forgetpassword/Forgetpassword';
 import Senddataschedule from './components/Senddataschedule/Senddataschedule';
 import TimetablePage from './components/TimetablePage/TimetablePage';
-
 import ClassroomTimetable from './components/Hallschedule/Hallschedule';
 import ProfessorTimetable from './components/ProfessorSchedule/ProfessorSchedule';
 import SpecialStudent from './components/SpecialCaseStudent/SpecialCaseStudent';
@@ -52,8 +51,6 @@ import TimeSlotAndDaysChart from './components/TimeslotandDaychart/TimeslotandDa
 import ChartsComparisonPage from './components/TimeslotandDaychart/TimeslotandDaychart';
 import TableRatingManagement from './components/Rating/Rating';
 import RatingPage from './components/Rating/Rating';
-
-
 let query=new QueryClient({
   defaultOptions : {
     queries: {
@@ -61,7 +58,6 @@ let query=new QueryClient({
     },
   },
 }); 
-
 function App() {
   let x= createBrowserRouter([
     {path:'',element:<Layout/>,children:[
@@ -91,19 +87,12 @@ function App() {
       {path:'analysis-section-halls',element:<ProtectedRouting><SectionClassroomAnalysis/></ProtectedRouting>},
       {path:'analysis-time-periods',element:<ProtectedRouting><TimeAnalysisDashboard/></ProtectedRouting>},
       {path:'rating',element:<ProtectedRouting><RatingPage/></ProtectedRouting>},
-
-
-
-
-
       {path:'learn-more',element:<LearnMore/>},
       {path:'learn/backend',element:<Learnbackend/>},
-
       {path:'view-group-schedule',element:<GroupSchedulePage/>},
       {path:'view-hall-schedule',element:<HallSchedulePage/>},
       {path:'view-professor-schedule',element:<ProfessorSchedulePage/>},
       {path:'view-specialstudent-schedule',element:<SpecialStudentSchedulePage/>},
-
       {path:'login',element:<Login/>},
       {path:'register',element:<Register/>},
       {path:'reset-password',element:<Resetpassword/>},
@@ -111,9 +100,6 @@ function App() {
       {path:'*',element:<Notfound/>}
     ]}
   ])
-  
- 
-
   return (
     <>
      <QueryClientProvider client={query}>

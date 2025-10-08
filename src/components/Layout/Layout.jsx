@@ -9,7 +9,6 @@ import { slider } from "@material-tailwind/react";
 export default function Layout() {
   const location = useLocation();
 
-  // قائمة المسارات التي تريد إخفاء النافبار والفوتر فيها
   const hideNavbarAndFooter = [
     "/login",
     "/",
