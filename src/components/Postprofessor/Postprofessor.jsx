@@ -18,10 +18,8 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Yup from 'yup'
-
 export default function Postprofessor({ open, handleOpen ,  isEdit = false, editProfessor = null}){
 
-  
 const queryClient = useQueryClient();
 const [professor, setProfessor] = useState({ id: "", name: "", availability: [] });
 const [message, setMessage] = useState("");

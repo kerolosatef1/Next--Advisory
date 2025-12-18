@@ -19,7 +19,7 @@ export default function Layout() {
     "/teachingassistant",
     "/courses",
     "/halls",
-    "*", // هذا سيغطي جميع المسارات غير المطابقة بما فيها صفحة Not Found
+    "*", 
   ];
 
   const shouldHide =

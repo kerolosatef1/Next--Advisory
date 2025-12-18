@@ -267,6 +267,7 @@ export default function Home() {
                   <Link
                     to="/learn-more"
                     className="px-6 py-3 bg-transparent border border-cyan-500/30 rounded-lg text-cyan-400 text-base font-medium flex items-center justify-center gap-2 hover:bg-cyan-900/10 hover:border-cyan-500/50 transition-all duration-300"
+                  aria-label="Learn more about Next Advisory academic advisory services"
                   >
                     Learn More
                   </Link>
