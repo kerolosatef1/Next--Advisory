@@ -7,7 +7,17 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
+
+      includeAssets: [
+        'favicon.svg',
+        'favicon.ico',
+        'apple-touch-icon.png'
+      ],
+
+      workbox: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024 // 4 MB
+      },
+
       manifest: {
         name: 'Next Advisory',
         short_name: 'Advisory',
@@ -18,16 +28,14 @@ export default defineConfig({
         theme_color: '#0f0f11',
         icons: [
           {
-            src: '/imagelogo.jpeg',
+            src: '/icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           },
           {
-            src: '/imagelogo.jpeg',
+            src: '/icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           }
         ]
       }
