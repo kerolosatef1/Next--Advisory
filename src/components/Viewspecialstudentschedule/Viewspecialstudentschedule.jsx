@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import specialStudent from '../../assets/specialstudent.jpeg';
-import inputstudent from '../../assets/allst.jpg';
+import specialStudent from '../../assets/specialstudent.webp';
+import inputstudent from '../../assets/allst.webp';
 
 
 export default function SpecialStudentSchedulePage() {

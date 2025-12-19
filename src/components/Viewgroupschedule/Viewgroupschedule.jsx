@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import imgGroups from '../../assets/mageroups.jpeg';
-import imgGroups1 from '../../assets/imgtimetable.jpg';
+import imgGroups from '../../assets/mageroups.webp';
+import imgGroups1 from '../../assets/imgtimetable.webp';
 
 
 

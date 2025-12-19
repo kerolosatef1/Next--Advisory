@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import professorschedule from '../../assets/rofessorchedule.jpeg';
+import professorschedule from '../../assets/rofessorchedule.webp';
 
 export default function ProfessorSchedulePage() {
   return (

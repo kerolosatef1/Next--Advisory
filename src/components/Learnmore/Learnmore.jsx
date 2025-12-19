@@ -1,10 +1,7 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import imgLOGO from '../../assets/imagelogo.jpeg';
-import imgGroups from '../../assets/mageroups.jpeg';
-import hallSchedule from '../../assets/allchedule.jpeg';
-import professorschedule from '../../assets/rofessorchedule.jpeg';
-import specialStudent from '../../assets/specialstudent.jpeg';
+import imgLOGO from '../../assets/imagelogo.webp';
+
 
 export default function LearnMore() {
   const navigate = useNavigate();

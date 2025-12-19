@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import hallSchedule from '../../assets/allchedule.jpeg';
+import hallSchedule from '../../assets/allchedule.webp';
 
 export default function HallSchedulePage() {
   return (
